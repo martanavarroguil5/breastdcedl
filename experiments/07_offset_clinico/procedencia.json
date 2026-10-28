@@ -1,0 +1,25 @@
+{
+  "fecha_archivo": "2026-10-28",
+  "origen": "Informes históricos recuperados y resúmenes ya migrados desde el repositorio anterior.",
+  "fuentes": [
+    {
+      "copia": "fuentes/offset.json",
+      "repositorio": "breastdcedl",
+      "revision": "871046954046e10428b9f37c895ab4c087754b4c",
+      "ruta": "reports/validacion/cv_offset/evaluacion/resumen.json",
+      "sha256_original": "be8c6bddc481329c02c00e5d26f910bdad5c3c4a40ead6dc67189a998cf2da40",
+      "sha256_copia": "be8c6bddc481329c02c00e5d26f910bdad5c3c4a40ead6dc67189a998cf2da40",
+      "tratamiento": "copia exacta"
+    },
+    {
+      "copia": "fuentes/plan.json",
+      "repositorio": "breastdcedl",
+      "revision": "871046954046e10428b9f37c895ab4c087754b4c",
+      "ruta": "reports/validacion/cv_offset/plan.json",
+      "sha256_original": "0db419b25dcd7d89602d87efca10b359aec6bcc3fdff3d2f98d724250afed803",
+      "sha256_copia": "0db419b25dcd7d89602d87efca10b359aec6bcc3fdff3d2f98d724250afed803",
+      "tratamiento": "copia exacta"
+    }
+  ],
+  "alcance": "Métricas agregadas y documentación. Sin pesos, imágenes ni predicciones individuales."
+}

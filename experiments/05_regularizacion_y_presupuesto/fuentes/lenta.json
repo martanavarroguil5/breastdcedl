@@ -1,0 +1,235 @@
+{
+  "plan": {
+    "receta": {
+      "modelo": {
+        "anchos": [
+          24,
+          48,
+          96,
+          160
+        ],
+        "oculto": 64,
+        "dropout": 0.5,
+        "dropout_espacial": 0.1,
+        "escalas": [
+          256,
+          128,
+          64
+        ],
+        "lado": 128
+      },
+      "optimizador": "AdamW",
+      "lr": 0.0002,
+      "weight_decay": 0.05,
+      "lote": 64,
+      "epocas_max": 60,
+      "warmup_epocas": 2,
+      "paciencia": 10,
+      "epocas_min": 14,
+      "ventana_auc": 3,
+      "ema": 0.98,
+      "clip_grad": 1.0,
+      "afin": {
+        "escala": 0.1,
+        "traslacion": 0.08,
+        "rotacion_grados": 15
+      },
+      "fraccion_seleccion": 0.15,
+      "lambda_aux": 0.0,
+      "tta": true,
+      "pacientes_diagnostico_fit": 150,
+      "cutout": {
+        "probabilidad": 0.5,
+        "lado": 0.25
+      },
+      "label_smoothing": 0.1,
+      "cortes_por_paciente": 3
+    },
+    "folds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "semillas": [
+      42,
+      2026,
+      7
+    ],
+    "perdidas": [
+      "normal",
+      "ponderada"
+    ],
+    "lambdas": [
+      0.0
+    ],
+    "control": "cv_control",
+    "entorno": {
+      "python": "3.12.3",
+      "torch": "2.14.0+cu130",
+      "cuda": "13.0",
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "host": "Linux-PC-Jorge"
+    }
+  },
+  "brazos": {
+    "normal_aux0": {
+      "auc_media_folds": 0.549366199260514,
+      "auc_de_folds": 0.02139599577127181,
+      "auc_por_fold": [
+        0.5575604838709678,
+        0.5732484076433121,
+        0.5151068533529846,
+        0.5474942528735632,
+        0.5534209985617423
+      ],
+      "auc_agrupada": 0.5216950510919656,
+      "auc_dentro_cohorte": {
+        "duke": 0.48953168044077133,
+        "spy1": 0.5675542406311637,
+        "spy2": 0.5073024823964674
+      },
+      "auc_dentro_cohorte_media": 0.5214628011561341,
+      "auc_por_subtipo": {
+        "HER2+": 0.559835415427325,
+        "HR+/HER2-": 0.5134559768637532,
+        "TN": 0.5048846675712347,
+        "desconocido": 0.5
+      },
+      "aux_auc_hr": 0.5020709735626213,
+      "aux_auc_her2": 0.4821358410079056,
+      "aux_rho_volumen": 0.0005044800898214646,
+      "epoca_elegida_mediana": 12.0,
+      "epocas_elegidas": [
+        5,
+        6,
+        7,
+        7,
+        8,
+        9,
+        10,
+        12,
+        12,
+        13,
+        13,
+        14,
+        19,
+        25,
+        27
+      ],
+      "semillas_por_fold": 3,
+      "minutos_totales": 15.063521989186604,
+      "segundos_por_epoca_mediana": 2.682225465774536,
+      "memoria_max_mb": 7364.71533203125,
+      "frente_a_cohorte": {
+        "delta": 0.00035458417865597003,
+        "ic95": [
+          -0.037795053849024395,
+          0.03911412559394035
+        ],
+        "p_delta_menor_igual_0": 0.4725,
+        "remuestreos": 2000
+      },
+      "epoca_pico_sel_mediana": 7.0,
+      "brecha_auc_elegida_mediana": 0.0011939279754835663,
+      "brecha_auc_final_mediana": 0.07869899624993004,
+      "tendencia_conjunta_1_14": "14/15"
+    },
+    "ponderada_aux0": {
+      "auc_media_folds": 0.5504668139710052,
+      "auc_de_folds": 0.038395323677193595,
+      "auc_por_fold": [
+        0.5735887096774194,
+        0.575508526813232,
+        0.49563111906516477,
+        0.5245977011494253,
+        0.5830080131497842
+      ],
+      "auc_agrupada": 0.5328471248246844,
+      "auc_dentro_cohorte": {
+        "duke": 0.5050964187327823,
+        "spy1": 0.599112426035503,
+        "spy2": 0.5091523451485858
+      },
+      "auc_dentro_cohorte_media": 0.5377870633056238,
+      "auc_por_subtipo": {
+        "HER2+": 0.597412254610351,
+        "HR+/HER2-": 0.5014058483290489,
+        "TN": 0.5269335142469471,
+        "desconocido": 1.0
+      },
+      "aux_auc_hr": 0.5111921426032753,
+      "aux_auc_her2": 0.5092418688392938,
+      "aux_rho_volumen": 0.039022651973635816,
+      "epoca_elegida_mediana": 12.0,
+      "epocas_elegidas": [
+        3,
+        4,
+        5,
+        6,
+        9,
+        11,
+        11,
+        12,
+        13,
+        13,
+        15,
+        16,
+        16,
+        18,
+        49
+      ],
+      "semillas_por_fold": 3,
+      "minutos_totales": 15.737800840536753,
+      "segundos_por_epoca_mediana": 2.6822865860802785,
+      "memoria_max_mb": 7364.71533203125,
+      "frente_a_cohorte": {
+        "delta": 0.0014551988891471357,
+        "ic95": [
+          -0.038024632935881715,
+          0.04143480461535568
+        ],
+        "p_delta_menor_igual_0": 0.4585,
+        "remuestreos": 2000
+      },
+      "epoca_pico_sel_mediana": 10.0,
+      "brecha_auc_elegida_mediana": 0.014987950223162128,
+      "brecha_auc_final_mediana": 0.0710177753768586,
+      "tendencia_conjunta_1_14": "14/15"
+    }
+  },
+  "referencia_cohorte": {
+    "auc_media_folds": 0.549011615081858,
+    "auc_de_folds": 0.026548986164248792
+  },
+  "comparaciones": {
+    "ponderada_aux0 − normal_aux0": {
+      "delta": 0.0011006147104911657,
+      "ic95": [
+        -0.02959290987783198,
+        0.03045385313841823
+      ],
+      "p_delta_menor_igual_0": 0.473,
+      "remuestreos": 2000
+    },
+    "normal_aux0 − control cv_control": {
+      "delta": -0.03082281294376865,
+      "ic95": [
+        -0.05968008579206356,
+        -0.00236693896103174
+      ],
+      "p_delta_menor_igual_0": 0.9815,
+      "remuestreos": 2000
+    },
+    "ponderada_aux0 − control cv_control": {
+      "delta": -0.030902361734062245,
+      "ic95": [
+        -0.060433813732854724,
+        3.034329376314032e-05
+      ],
+      "p_delta_menor_igual_0": 0.974,
+      "remuestreos": 2000
+    }
+  }
+}

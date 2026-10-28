@@ -1,0 +1,293 @@
+{
+  "titulo": "Regularización y presupuesto de entrenamiento",
+  "fecha": "2026-10-26/2026-10-27",
+  "estado": "Presupuesto lineal adoptado",
+  "modelos": [
+    {
+      "nombre": "Control · normal",
+      "fuente": "fuentes/control.json",
+      "ruta_fuente": "brazos/normal_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana"
+      },
+      "auc_media_folds": 0.5801890122042827,
+      "auc_de_folds": 0.02469631121530822,
+      "auc_por_fold": [
+        0.5745967741935484,
+        0.5558865831107458,
+        0.6172228655647963,
+        0.5621149425287356,
+        0.5911238956235875
+      ],
+      "auc_agrupada": 0.5708314966940493,
+      "epoca_mediana": 5.0,
+      "adoptado": false
+    },
+    {
+      "nombre": "Control · ponderada",
+      "fuente": "fuentes/control.json",
+      "ruta_fuente": "brazos/ponderada_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana"
+      },
+      "auc_media_folds": 0.5813691757050674,
+      "auc_de_folds": 0.029151482403627516,
+      "auc_por_fold": [
+        0.584274193548387,
+        0.5566057119375385,
+        0.6281713864617328,
+        0.5571494252873563,
+        0.5806451612903226
+      ],
+      "auc_agrupada": 0.5778200761370467,
+      "epoca_mediana": 4.0,
+      "adoptado": false
+    },
+    {
+      "nombre": "Regularización fuerte · normal",
+      "fuente": "fuentes/lenta.json",
+      "ruta_fuente": "brazos/normal_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "brecha_auc_final_mediana": "brecha_auc_final_mediana"
+      },
+      "auc_media_folds": 0.549366199260514,
+      "auc_de_folds": 0.02139599577127181,
+      "auc_por_fold": [
+        0.5575604838709678,
+        0.5732484076433121,
+        0.5151068533529846,
+        0.5474942528735632,
+        0.5534209985617423
+      ],
+      "auc_agrupada": 0.5216950510919656,
+      "epoca_mediana": 12.0,
+      "brecha_auc_final_mediana": 0.07869899624993004,
+      "adoptado": false
+    },
+    {
+      "nombre": "Regularización fuerte · ponderada",
+      "fuente": "fuentes/lenta.json",
+      "ruta_fuente": "brazos/ponderada_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "brecha_auc_final_mediana": "brecha_auc_final_mediana"
+      },
+      "auc_media_folds": 0.5504668139710052,
+      "auc_de_folds": 0.038395323677193595,
+      "auc_por_fold": [
+        0.5735887096774194,
+        0.575508526813232,
+        0.49563111906516477,
+        0.5245977011494253,
+        0.5830080131497842
+      ],
+      "auc_agrupada": 0.5328471248246844,
+      "epoca_mediana": 12.0,
+      "brecha_auc_final_mediana": 0.0710177753768586,
+      "adoptado": false
+    },
+    {
+      "nombre": "Muestreo de 3 cortes · normal",
+      "fuente": "fuentes/media.json",
+      "ruta_fuente": "brazos/normal_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "brecha_auc_final_mediana": "brecha_auc_final_mediana"
+      },
+      "auc_media_folds": 0.5841950285731377,
+      "auc_de_folds": 0.0354967158675612,
+      "auc_por_fold": [
+        0.5909274193548387,
+        0.565646188617218,
+        0.625328981998105,
+        0.5339770114942529,
+        0.6050955414012739
+      ],
+      "auc_agrupada": 0.5671007814065318,
+      "epoca_mediana": 8.0,
+      "brecha_auc_final_mediana": 0.14441118563571875,
+      "adoptado": false
+    },
+    {
+      "nombre": "Muestreo de 3 cortes · ponderada",
+      "fuente": "fuentes/media.json",
+      "ruta_fuente": "brazos/ponderada_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "brecha_auc_final_mediana": "brecha_auc_final_mediana"
+      },
+      "auc_media_folds": 0.5734110081422192,
+      "auc_de_folds": 0.02687184897897487,
+      "auc_por_fold": [
+        0.5912298387096774,
+        0.5318471337579618,
+        0.5872197073376145,
+        0.5610114942528736,
+        0.5957468666529689
+      ],
+      "auc_agrupada": 0.5685473852935283,
+      "epoca_mediana": 12.0,
+      "brecha_auc_final_mediana": 0.16208530177018954,
+      "adoptado": false
+    },
+    {
+      "nombre": "12 épocas · lineal · normal",
+      "fuente": "fuentes/presupuesto.json",
+      "ruta_fuente": "brazos/normal_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "brecha_auc_final_mediana": "brecha_auc_final_mediana"
+      },
+      "auc_media_folds": 0.5717723941434796,
+      "auc_de_folds": 0.012505020981393042,
+      "auc_por_fold": [
+        0.582358870967742,
+        0.570577357715225,
+        0.5780608485103695,
+        0.550712643678161,
+        0.577152249845901
+      ],
+      "auc_agrupada": 0.561061911440593,
+      "epoca_mediana": 12.0,
+      "brecha_auc_final_mediana": 0.08307447100812893,
+      "adoptado": false
+    },
+    {
+      "nombre": "12 épocas · lineal · ponderada",
+      "fuente": "fuentes/presupuesto.json",
+      "ruta_fuente": "brazos/ponderada_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "brecha_auc_final_mediana": "brecha_auc_final_mediana"
+      },
+      "auc_media_folds": 0.5814169869369044,
+      "auc_de_folds": 0.01827512735035504,
+      "auc_por_fold": [
+        0.5889112903225806,
+        0.5655434559276762,
+        0.5964838404042531,
+        0.5583448275862068,
+        0.5978015204438052
+      ],
+      "auc_agrupada": 0.5722019635343618,
+      "epoca_mediana": 12.0,
+      "brecha_auc_final_mediana": 0.09355018735549714,
+      "adoptado": true
+    },
+    {
+      "nombre": "12 épocas · coseno · normal",
+      "fuente": "fuentes/presupuesto_coseno.json",
+      "ruta_fuente": "brazos/normal_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "brecha_auc_final_mediana": "brecha_auc_final_mediana"
+      },
+      "auc_media_folds": 0.5717769709233663,
+      "auc_de_folds": 0.01474728458927585,
+      "auc_por_fold": [
+        0.5948588709677419,
+        0.5724265461269776,
+        0.5724813138225077,
+        0.5552183908045977,
+        0.5638997328950072
+      ],
+      "auc_agrupada": 0.5615708274894811,
+      "epoca_mediana": 12.0,
+      "brecha_auc_final_mediana": 0.03919253261358524,
+      "adoptado": false
+    },
+    {
+      "nombre": "12 épocas · coseno · ponderada",
+      "fuente": "fuentes/presupuesto_coseno.json",
+      "ruta_fuente": "brazos/ponderada_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "brecha_auc_final_mediana": "brecha_auc_final_mediana"
+      },
+      "auc_media_folds": 0.5802428282007142,
+      "auc_de_folds": 0.028068373782414738,
+      "auc_por_fold": [
+        0.5935483870967742,
+        0.5561947811793713,
+        0.6031161174860512,
+        0.544183908045977,
+        0.6041709471953975
+      ],
+      "auc_agrupada": 0.5713764776597876,
+      "epoca_mediana": 12.0,
+      "brecha_auc_final_mediana": 0.07022289962442763,
+      "adoptado": false
+    }
+  ],
+  "comparaciones": [
+    {
+      "nombre": "Lineal − media · ponderada",
+      "fuente": "fuentes/presupuesto.json",
+      "ruta_fuente": "comparaciones/ponderada_aux0 − control cv_media",
+      "campos_fuente": {
+        "delta": "delta",
+        "limite_inferior": "ic95/0",
+        "limite_superior": "ic95/1"
+      },
+      "delta": 0.00800597879468512,
+      "limite_inferior": -0.01078542738669934,
+      "limite_superior": 0.027457273358244504
+    },
+    {
+      "nombre": "Coseno − media · ponderada",
+      "fuente": "fuentes/presupuesto_coseno.json",
+      "ruta_fuente": "comparaciones/ponderada_aux0 − control cv_media",
+      "campos_fuente": {
+        "delta": "delta",
+        "limite_inferior": "ic95/0",
+        "limite_superior": "ic95/1"
+      },
+      "delta": 0.00683182005849492,
+      "limite_inferior": -0.010677343105882128,
+      "limite_superior": 0.025088662652864715
+    }
+  ],
+  "metrica_principal": "auc_media_folds",
+  "protocolo": "Mismos 5 folds y 3 semillas; comparación por receta y pérdida, sin auxiliares."
+}

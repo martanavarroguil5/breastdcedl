@@ -1,0 +1,167 @@
+{
+  "titulo": "Fusión tardía de imagen y clínica",
+  "fecha": "2026-10-27",
+  "estado": "Adoptada",
+  "modelos": [
+    {
+      "nombre": "Imagen recalibrada",
+      "fuente": "fuentes/fusion.json",
+      "ruta_fuente": "brazos/imagen|normal",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "ap": "ap",
+        "brier": "brier"
+      },
+      "auc_media_folds": 0.5814169869369044,
+      "auc_de_folds": 0.01827512735035504,
+      "auc_por_fold": [
+        0.5889112903225806,
+        0.5655434559276762,
+        0.5964838404042531,
+        0.5583448275862068,
+        0.5978015204438052
+      ],
+      "auc_agrupada": 0.5626888399118413,
+      "ap": 0.3395653821323862,
+      "brier": 0.2066363721986432,
+      "adoptado": false
+    },
+    {
+      "nombre": "Subtipo",
+      "fuente": "fuentes/fusion.json",
+      "ruta_fuente": "brazos/subtipo|normal",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "ap": "ap",
+        "brier": "brier"
+      },
+      "auc_media_folds": 0.6794099758586616,
+      "auc_de_folds": 0.031366615452545606,
+      "auc_por_fold": [
+        0.7201286764705882,
+        0.6485001027326895,
+        0.6521739130434783,
+        0.7027586206896552,
+        0.6734885663568967
+      ],
+      "auc_agrupada": 0.6706181765424187,
+      "ap": 0.4287070493866095,
+      "brier": 0.18823238965797662,
+      "adoptado": false
+    },
+    {
+      "nombre": "Subtipo + imagen",
+      "fuente": "fuentes/fusion.json",
+      "ruta_fuente": "brazos/subtipo+imagen|normal",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "ap": "ap",
+        "brier": "brier"
+      },
+      "auc_media_folds": 0.6991127918535256,
+      "auc_de_folds": 0.030841135052701713,
+      "auc_por_fold": [
+        0.7493951612903226,
+        0.6698171358126156,
+        0.6801768607221813,
+        0.7034482758620689,
+        0.6927265255804397
+      ],
+      "auc_agrupada": 0.6889360849529153,
+      "ap": 0.46724944151844716,
+      "brier": 0.18757120507713,
+      "adoptado": false
+    },
+    {
+      "nombre": "Clínica completa",
+      "fuente": "fuentes/fusion.json",
+      "ruta_fuente": "brazos/subtipo+edad+volumen|normal",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "ap": "ap",
+        "brier": "brier"
+      },
+      "auc_media_folds": 0.7078032555418763,
+      "auc_de_folds": 0.03278769822390598,
+      "auc_por_fold": [
+        0.7576612903225807,
+        0.7113211423875077,
+        0.680808506158543,
+        0.7136551724137931,
+        0.6755701664269571
+      ],
+      "auc_agrupada": 0.7062071729112402,
+      "ap": 0.49586104283155275,
+      "brier": 0.1841533653539957,
+      "adoptado": false
+    },
+    {
+      "nombre": "Clínica completa + imagen",
+      "fuente": "fuentes/fusion.json",
+      "ruta_fuente": "brazos/subtipo+edad+volumen+imagen|normal",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "ap": "ap",
+        "brier": "brier"
+      },
+      "auc_media_folds": 0.7135414189348536,
+      "auc_de_folds": 0.03260508749286039,
+      "auc_por_fold": [
+        0.7657258064516129,
+        0.7120402712143004,
+        0.6896515422676072,
+        0.7174252873563218,
+        0.6828641873844257
+      ],
+      "auc_agrupada": 0.7108996193147665,
+      "ap": 0.5054830403165851,
+      "brier": 0.18291594950413098,
+      "adoptado": true
+    }
+  ],
+  "comparaciones": [
+    {
+      "nombre": "Imagen sobre clínica completa",
+      "fuente": "fuentes/fusion.json",
+      "ruta_fuente": "comparaciones/principal: completa+imagen − completa",
+      "campos_fuente": {
+        "delta": "delta",
+        "limite_inferior": "ic95/0",
+        "limite_superior": "ic95/1"
+      },
+      "delta": 0.00573816339297728,
+      "limite_inferior": -0.0010910607654865594,
+      "limite_superior": 0.012598215763116608
+    },
+    {
+      "nombre": "Imagen sobre subtipo",
+      "fuente": "fuentes/fusion.json",
+      "ruta_fuente": "comparaciones/subtipo+imagen − subtipo",
+      "campos_fuente": {
+        "delta": "delta",
+        "limite_inferior": "ic95/0",
+        "limite_superior": "ic95/1"
+      },
+      "delta": 0.020136567103398617,
+      "limite_inferior": 0.0076019024202121695,
+      "limite_superior": 0.032467073691703464
+    }
+  ],
+  "metrica_principal": "auc_media_folds",
+  "protocolo": "Fusión con CV interna dentro de cada exterior; métricas de logística normal."
+}

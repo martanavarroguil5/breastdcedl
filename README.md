@@ -15,7 +15,7 @@ historial nuevo y una única rama, `main`.
 app/                         Aplicación Streamlit y sus recursos
   requirements.txt           Dependencias de la aplicación
 dataset/                     Distribución local de BreastDCEDL (fuera de Git)
-experiments/                 Protocolos, decisiones y piloto experimental
+experiments/                 Catálogo de ensayos, figuras y protocolos
 reports/
   modelo_elegido/
     imagen_v2/               Cinco pesos, calibración, umbral e historias
@@ -48,7 +48,8 @@ la inferencia promedia cinco redes y cuatro reflexiones.
 La imagen mejora la AUC frente a la clínica sola en +0,006, con IC95 %
 [−0,001; +0,013]; esta diferencia no confirma una mejora. El test permanece
 sin evaluar. Los protocolos y sus limitaciones están en
-[experiments/LECCIONES.md](experiments/LECCIONES.md).
+[catálogo de experimentos](experiments/README.md) y en
+[las lecciones del proyecto](experiments/LECCIONES.md).
 
 ## Instalación
 

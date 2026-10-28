@@ -1,0 +1,16 @@
+{
+  "fecha_archivo": "2026-10-28",
+  "origen": "Informes históricos recuperados y resúmenes ya migrados desde el repositorio anterior.",
+  "fuentes": [
+    {
+      "copia": "fuentes/control.json",
+      "repositorio": "breastdcedl",
+      "revision": "871046954046e10428b9f37c895ab4c087754b4c",
+      "ruta": "reports/validacion/cv_control/resumen.json",
+      "sha256_original": "672b9c1f20a23a1e6dc8fef0ec39a0e2041afaf95ef7bfff185d73f2212dba5e",
+      "sha256_copia": "672b9c1f20a23a1e6dc8fef0ec39a0e2041afaf95ef7bfff185d73f2212dba5e",
+      "tratamiento": "copia exacta"
+    }
+  ],
+  "alcance": "Métricas agregadas y documentación. Sin pesos, imágenes ni predicciones individuales."
+}

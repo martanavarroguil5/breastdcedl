@@ -1,0 +1,25 @@
+{
+  "fecha_archivo": "2026-10-28",
+  "origen": "Informes históricos recuperados y resúmenes ya migrados desde el repositorio anterior.",
+  "fuentes": [
+    {
+      "copia": "fuentes/informe.json",
+      "repositorio": "caso-cancer-mama",
+      "revision": "3f6e8483a5e0bb44fa3f140be0f932e4dc23d24a",
+      "ruta": "resultados/15_informe_cinetico_20261021/informe.json",
+      "sha256_original": "e6c0e88fd52f862f2f9bd2a3a487264fc864263df25736dcc8a683fb1095f087",
+      "sha256_copia": "e6c0e88fd52f862f2f9bd2a3a487264fc864263df25736dcc8a683fb1095f087",
+      "tratamiento": "copia exacta"
+    },
+    {
+      "copia": "fuentes/extracto_informe.md",
+      "repositorio": "caso-cancer-mama",
+      "revision": "3f6e8483a5e0bb44fa3f140be0f932e4dc23d24a",
+      "ruta": "resultados/15_informe_cinetico_20261021/INFORME_RESULTADOS.md",
+      "sha256_original": "24327f8198fb14db795e6d02ac57065b02470ce5113ca4d095d519dff36df437",
+      "sha256_copia": "46ba2455ac25b2e59a24ede54539a6961437411f5e4ed51e4615b5717b091485",
+      "tratamiento": "extracto textual de la sección indicada en el archivo"
+    }
+  ],
+  "alcance": "Métricas agregadas y documentación. Sin pesos, imágenes ni predicciones individuales."
+}

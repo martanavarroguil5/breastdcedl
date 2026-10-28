@@ -1,0 +1,153 @@
+{
+  "titulo": "Aprendizaje multitarea",
+  "fecha": "2026-10-26/2026-10-27",
+  "estado": "Descartado",
+  "modelos": [
+    {
+      "nombre": "Normal · solo pCR",
+      "fuente": "fuentes/control.json",
+      "ruta_fuente": "brazos/normal_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "aux_auc_hr": "aux_auc_hr",
+        "aux_auc_her2": "aux_auc_her2",
+        "aux_rho_volumen": "aux_rho_volumen"
+      },
+      "auc_media_folds": 0.5801890122042827,
+      "auc_de_folds": 0.02469631121530822,
+      "auc_por_fold": [
+        0.5745967741935484,
+        0.5558865831107458,
+        0.6172228655647963,
+        0.5621149425287356,
+        0.5911238956235875
+      ],
+      "auc_agrupada": 0.5708314966940493,
+      "epoca_mediana": 5.0,
+      "aux_auc_hr": 0.5092578669655795,
+      "aux_auc_her2": 0.5253120560945387,
+      "aux_rho_volumen": 0.016122125253290532
+    },
+    {
+      "nombre": "Normal · multitarea",
+      "fuente": "fuentes/control.json",
+      "ruta_fuente": "brazos/normal_aux1",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "aux_auc_hr": "aux_auc_hr",
+        "aux_auc_her2": "aux_auc_her2",
+        "aux_rho_volumen": "aux_rho_volumen"
+      },
+      "auc_media_folds": 0.5621904910931264,
+      "auc_de_folds": 0.058337156858002254,
+      "auc_por_fold": [
+        0.5706653225806452,
+        0.46517361824532566,
+        0.5966943888830403,
+        0.5620229885057472,
+        0.6163961372508733
+      ],
+      "auc_agrupada": 0.5483189741534763,
+      "epoca_mediana": 10.0,
+      "aux_auc_hr": 0.533778057249091,
+      "aux_auc_her2": 0.49272696656865667,
+      "aux_rho_volumen": 0.7574280128960669
+    },
+    {
+      "nombre": "Ponderada · solo pCR",
+      "fuente": "fuentes/control.json",
+      "ruta_fuente": "brazos/ponderada_aux0",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "aux_auc_hr": "aux_auc_hr",
+        "aux_auc_her2": "aux_auc_her2",
+        "aux_rho_volumen": "aux_rho_volumen"
+      },
+      "auc_media_folds": 0.5813691757050674,
+      "auc_de_folds": 0.029151482403627516,
+      "auc_por_fold": [
+        0.584274193548387,
+        0.5566057119375385,
+        0.6281713864617328,
+        0.5571494252873563,
+        0.5806451612903226
+      ],
+      "auc_agrupada": 0.5778200761370467,
+      "epoca_mediana": 4.0,
+      "aux_auc_hr": 0.5248653525439484,
+      "aux_auc_her2": 0.4943676627419487,
+      "aux_rho_volumen": -0.0013277797106342236
+    },
+    {
+      "nombre": "Ponderada · multitarea",
+      "fuente": "fuentes/control.json",
+      "ruta_fuente": "brazos/ponderada_aux1",
+      "campos_fuente": {
+        "auc_media_folds": "auc_media_folds",
+        "auc_de_folds": "auc_de_folds",
+        "auc_por_fold": "auc_por_fold",
+        "auc_agrupada": "auc_agrupada",
+        "epoca_mediana": "epoca_elegida_mediana",
+        "aux_auc_hr": "aux_auc_hr",
+        "aux_auc_her2": "aux_auc_her2",
+        "aux_rho_volumen": "aux_rho_volumen"
+      },
+      "auc_media_folds": 0.5670505223478658,
+      "auc_de_folds": 0.03789516052807857,
+      "auc_por_fold": [
+        0.5673387096774194,
+        0.5083213478528867,
+        0.6089062006527003,
+        0.5611034482758621,
+        0.5895829052804602
+      ],
+      "auc_agrupada": 0.5635904628330995,
+      "epoca_mediana": 8.0,
+      "aux_auc_hr": 0.525600103890423,
+      "aux_auc_her2": 0.4703314638032201,
+      "aux_rho_volumen": 0.6994319528849303
+    }
+  ],
+  "comparaciones": [
+    {
+      "nombre": "Multitarea − solo pCR · normal",
+      "fuente": "fuentes/control.json",
+      "ruta_fuente": "comparaciones/normal_aux1 − normal_aux0",
+      "campos_fuente": {
+        "delta": "delta",
+        "limite_inferior": "ic95/0",
+        "limite_superior": "ic95/1"
+      },
+      "delta": -0.017998521111156296,
+      "limite_inferior": -0.04153664141502527,
+      "limite_superior": 0.004708271043241721
+    },
+    {
+      "nombre": "Multitarea − solo pCR · ponderada",
+      "fuente": "fuentes/control.json",
+      "ruta_fuente": "comparaciones/ponderada_aux1 − ponderada_aux0",
+      "campos_fuente": {
+        "delta": "delta",
+        "limite_inferior": "ic95/0",
+        "limite_superior": "ic95/1"
+      },
+      "delta": -0.014318653357201616,
+      "limite_inferior": -0.036194262135905354,
+      "limite_superior": 0.008048939540953806
+    }
+  ],
+  "metrica_principal": "auc_media_folds",
+  "protocolo": "5 folds por paciente, 3 semillas, controles emparejados, selección interna."
+}

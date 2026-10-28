@@ -1,0 +1,142 @@
+{
+  "titulo": "Aprendizaje del residuo clínico",
+  "fecha": "2026-10-27",
+  "estado": "Descartado",
+  "modelos": [
+    {
+      "nombre": "Clínica de referencia",
+      "fuente": "fuentes/offset.json",
+      "ruta_fuente": "aucs/clinica_offset",
+      "campos_fuente": {
+        "auc_media_folds": "media",
+        "auc_de_folds": "de",
+        "auc_por_fold": "por_fold",
+        "auc_agrupada": "auc",
+        "ap": "ap",
+        "brier": "brier"
+      },
+      "auc_media_folds": 0.7078032555418763,
+      "auc_de_folds": 0.03278769822390598,
+      "auc_por_fold": [
+        0.7576612903225807,
+        0.7113211423875077,
+        0.680808506158543,
+        0.7136551724137931,
+        0.6755701664269571
+      ],
+      "auc_agrupada": 0.7062071729112402,
+      "ap": 0.49586104283155275,
+      "brier": 0.18415336512455405,
+      "adoptado": false
+    },
+    {
+      "nombre": "Fusión tardía vigente",
+      "fuente": "fuentes/offset.json",
+      "ruta_fuente": "aucs/fusion_v1",
+      "campos_fuente": {
+        "auc_media_folds": "media",
+        "auc_de_folds": "de",
+        "auc_por_fold": "por_fold",
+        "auc_agrupada": "auc",
+        "ap": "ap",
+        "brier": "brier"
+      },
+      "auc_media_folds": 0.7135414189348536,
+      "auc_de_folds": 0.03260508749286039,
+      "auc_por_fold": [
+        0.7657258064516129,
+        0.7120402712143004,
+        0.6896515422676072,
+        0.7174252873563218,
+        0.6828641873844257
+      ],
+      "auc_agrupada": 0.7108996193147665,
+      "ap": 0.5054830403165851,
+      "brier": 0.18291594950413098,
+      "adoptado": true
+    },
+    {
+      "nombre": "Residuo clínico",
+      "fuente": "fuentes/offset.json",
+      "ruta_fuente": "aucs/offset",
+      "campos_fuente": {
+        "auc_media_folds": "media",
+        "auc_de_folds": "de",
+        "auc_por_fold": "por_fold",
+        "auc_agrupada": "auc",
+        "ap": "ap",
+        "brier": "brier"
+      },
+      "auc_media_folds": 0.7113681457179856,
+      "auc_de_folds": 0.03224145058299401,
+      "auc_por_fold": [
+        0.7654233870967742,
+        0.6904664064105198,
+        0.6989156753342457,
+        0.7156781609195403,
+        0.6863570988288473
+      ],
+      "auc_agrupada": 0.7105509917852134,
+      "ap": 0.5052189100086784,
+      "brier": 0.1830709464656957,
+      "adoptado": false
+    },
+    {
+      "nombre": "Residuo por subtipo",
+      "fuente": "fuentes/offset.json",
+      "ruta_fuente": "aucs/offset_subtipo",
+      "campos_fuente": {
+        "auc_media_folds": "media",
+        "auc_de_folds": "de",
+        "auc_por_fold": "por_fold",
+        "auc_agrupada": "auc",
+        "ap": "ap",
+        "brier": "brier"
+      },
+      "auc_media_folds": 0.708331208256596,
+      "auc_de_folds": 0.03067721121903069,
+      "auc_por_fold": [
+        0.7548387096774194,
+        0.707314567495377,
+        0.687756605958522,
+        0.7166896551724138,
+        0.675056502979248
+      ],
+      "auc_agrupada": 0.7069725505910639,
+      "ap": 0.506060776280654,
+      "brier": 0.18389975932023517,
+      "adoptado": false
+    }
+  ],
+  "comparaciones": [
+    {
+      "nombre": "Residuo − fusión vigente",
+      "fuente": "fuentes/offset.json",
+      "ruta_fuente": "comparaciones/offset − fusion_v1",
+      "campos_fuente": {
+        "delta": "delta",
+        "limite_inferior": "ic95/0",
+        "limite_superior": "ic95/1"
+      },
+      "delta": -0.002173273216867999,
+      "limite_inferior": -0.008953929193759706,
+      "limite_superior": 0.004816469565477608
+    },
+    {
+      "nombre": "Residuo por subtipo − fusión",
+      "fuente": "fuentes/offset.json",
+      "ruta_fuente": "comparaciones/offset_subtipo − fusion_v1",
+      "campos_fuente": {
+        "delta": "delta",
+        "limite_inferior": "ic95/0",
+        "limite_superior": "ic95/1"
+      },
+      "delta": -0.005210210678257554,
+      "limite_inferior": -0.011210768760049967,
+      "limite_superior": 0.0007873372983876326
+    }
+  ],
+  "metrica_principal": "auc_media_folds",
+  "protocolo": "Offsets por ajuste cruzado; 5 folds, 3 semillas y 2 cabezas alternativas.",
+  "margen_adopcion": 0.01
+}

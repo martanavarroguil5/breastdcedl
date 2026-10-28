@@ -1,0 +1,345 @@
+{
+  "plan": {
+    "receta": {
+      "modelo": {
+        "anchos": [
+          24,
+          48,
+          96,
+          160
+        ],
+        "oculto": 64,
+        "dropout": 0.35,
+        "dropout_espacial": 0.1,
+        "escalas": [
+          256,
+          128,
+          64
+        ],
+        "lado": 128
+      },
+      "optimizador": "AdamW",
+      "lr": 0.0003,
+      "weight_decay": 0.01,
+      "lote": 64,
+      "epocas_max": 40,
+      "warmup_epocas": 1,
+      "paciencia": 8,
+      "epocas_min": 6,
+      "ventana_auc": 3,
+      "ema": 0.995,
+      "clip_grad": 1.0,
+      "afin": {
+        "escala": 0.05,
+        "traslacion": 0.03
+      },
+      "fraccion_seleccion": 0.15,
+      "lambda_aux": 1.0,
+      "tta": true,
+      "pacientes_diagnostico_fit": 150
+    },
+    "folds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "semillas": [
+      42,
+      2026,
+      7
+    ],
+    "perdidas": [
+      "normal",
+      "ponderada"
+    ],
+    "lambdas": [
+      0.0,
+      1.0
+    ],
+    "entorno": {
+      "python": "3.12.3",
+      "torch": "2.14.0+cu130",
+      "cuda": "13.0",
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "host": "Linux-PC-Jorge"
+    }
+  },
+  "brazos": {
+    "normal_aux0": {
+      "auc_media_folds": 0.5801890122042827,
+      "auc_de_folds": 0.02469631121530822,
+      "auc_por_fold": [
+        0.5745967741935484,
+        0.5558865831107458,
+        0.6172228655647963,
+        0.5621149425287356,
+        0.5911238956235875
+      ],
+      "auc_agrupada": 0.5708314966940493,
+      "auc_dentro_cohorte": {
+        "duke": 0.5136363636363637,
+        "spy1": 0.631163708086785,
+        "spy2": 0.5546977562955007
+      },
+      "auc_dentro_cohorte_media": 0.5664992760062165,
+      "auc_por_subtipo": {
+        "HER2+": 0.6090620662304184,
+        "HR+/HER2-": 0.5282776349614395,
+        "TN": 0.5654681139755766,
+        "desconocido": 0.5
+      },
+      "aux_auc_hr": 0.5092578669655795,
+      "aux_auc_her2": 0.5253120560945387,
+      "aux_rho_volumen": 0.016122125253290532,
+      "epoca_elegida_mediana": 5.0,
+      "epocas_elegidas": [
+        3,
+        3,
+        3,
+        3,
+        4,
+        4,
+        4,
+        5,
+        6,
+        6,
+        6,
+        8,
+        9,
+        10,
+        12
+      ],
+      "semillas_por_fold": 3,
+      "minutos_totales": 23.780242884159087,
+      "segundos_por_epoca_mediana": 6.9274515888907695,
+      "memoria_max_mb": 7336.24755859375,
+      "frente_a_cohorte": {
+        "delta": 0.03117739712242462,
+        "ic95": [
+          -0.007184827366463861,
+          0.0708844148456837
+        ],
+        "p_delta_menor_igual_0": 0.0535,
+        "remuestreos": 2000
+      }
+    },
+    "normal_aux1": {
+      "auc_media_folds": 0.5621904910931264,
+      "auc_de_folds": 0.058337156858002254,
+      "auc_por_fold": [
+        0.5706653225806452,
+        0.46517361824532566,
+        0.5966943888830403,
+        0.5620229885057472,
+        0.6163961372508733
+      ],
+      "auc_agrupada": 0.5483189741534763,
+      "auc_dentro_cohorte": {
+        "duke": 0.48044077134986224,
+        "spy1": 0.5779092702169625,
+        "spy2": 0.5375865258384055
+      },
+      "auc_dentro_cohorte_media": 0.5319788558017434,
+      "auc_por_subtipo": {
+        "HER2+": 0.5755998413642673,
+        "HR+/HER2-": 0.5437017994858612,
+        "TN": 0.5344640434192673,
+        "desconocido": 1.0
+      },
+      "aux_auc_hr": 0.533778057249091,
+      "aux_auc_her2": 0.49272696656865667,
+      "aux_rho_volumen": 0.7574280128960669,
+      "epoca_elegida_mediana": 10.0,
+      "epocas_elegidas": [
+        5,
+        6,
+        6,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        11,
+        15,
+        22,
+        25,
+        26,
+        35
+      ],
+      "semillas_por_fold": 3,
+      "minutos_totales": 37.51211569706599,
+      "segundos_por_epoca_mediana": 7.0576077699661255,
+      "memoria_max_mb": 7336.25146484375,
+      "frente_a_cohorte": {
+        "delta": 0.013178876011268326,
+        "ic95": [
+          -0.02543034708667053,
+          0.054491563018248326
+        ],
+        "p_delta_menor_igual_0": 0.2455,
+        "remuestreos": 2000
+      }
+    },
+    "ponderada_aux0": {
+      "auc_media_folds": 0.5813691757050674,
+      "auc_de_folds": 0.029151482403627516,
+      "auc_por_fold": [
+        0.584274193548387,
+        0.5566057119375385,
+        0.6281713864617328,
+        0.5571494252873563,
+        0.5806451612903226
+      ],
+      "auc_agrupada": 0.5778200761370467,
+      "auc_dentro_cohorte": {
+        "duke": 0.5165289256198347,
+        "spy1": 0.5986193293885601,
+        "spy2": 0.5676915503043323
+      },
+      "auc_dentro_cohorte_media": 0.560946601770909,
+      "auc_por_subtipo": {
+        "HER2+": 0.6266111441602221,
+        "HR+/HER2-": 0.5443043059125964,
+        "TN": 0.5610583446404342,
+        "desconocido": 1.0
+      },
+      "aux_auc_hr": 0.5248653525439484,
+      "aux_auc_her2": 0.4943676627419487,
+      "aux_rho_volumen": -0.0013277797106342236,
+      "epoca_elegida_mediana": 4.0,
+      "epocas_elegidas": [
+        3,
+        3,
+        3,
+        3,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        7,
+        7,
+        11
+      ],
+      "semillas_por_fold": 3,
+      "minutos_totales": 22.2817426721255,
+      "segundos_por_epoca_mediana": 6.9274706443150835,
+      "memoria_max_mb": 7336.24755859375,
+      "frente_a_cohorte": {
+        "delta": 0.03235756062320938,
+        "ic95": [
+          -0.004415190133463744,
+          0.07088057671336156
+        ],
+        "p_delta_menor_igual_0": 0.042,
+        "remuestreos": 2000
+      }
+    },
+    "ponderada_aux1": {
+      "auc_media_folds": 0.5670505223478658,
+      "auc_de_folds": 0.03789516052807857,
+      "auc_por_fold": [
+        0.5673387096774194,
+        0.5083213478528867,
+        0.6089062006527003,
+        0.5611034482758621,
+        0.5895829052804602
+      ],
+      "auc_agrupada": 0.5635904628330995,
+      "auc_dentro_cohorte": {
+        "duke": 0.4684573002754821,
+        "spy1": 0.5611439842209073,
+        "spy2": 0.5601130803198472
+      },
+      "auc_dentro_cohorte_media": 0.5299047882720789,
+      "auc_por_subtipo": {
+        "HER2+": 0.5988994646044021,
+        "HR+/HER2-": 0.5285588046272494,
+        "TN": 0.5664857530529173,
+        "desconocido": 1.0
+      },
+      "aux_auc_hr": 0.525600103890423,
+      "aux_auc_her2": 0.4703314638032201,
+      "aux_rho_volumen": 0.6994319528849303,
+      "epoca_elegida_mediana": 8.0,
+      "epocas_elegidas": [
+        3,
+        3,
+        4,
+        6,
+        6,
+        8,
+        8,
+        8,
+        8,
+        10,
+        10,
+        10,
+        10,
+        27,
+        36
+      ],
+      "semillas_por_fold": 3,
+      "minutos_totales": 32.10606850385666,
+      "segundos_por_epoca_mediana": 7.05748188495636,
+      "memoria_max_mb": 7336.25146484375,
+      "frente_a_cohorte": {
+        "delta": 0.018038907266007764,
+        "ic95": [
+          -0.021011597918063802,
+          0.060722370957715245
+        ],
+        "p_delta_menor_igual_0": 0.1795,
+        "remuestreos": 2000
+      }
+    }
+  },
+  "referencia_cohorte": {
+    "auc_media_folds": 0.549011615081858,
+    "auc_de_folds": 0.026548986164248792
+  },
+  "comparaciones": {
+    "normal_aux1 − normal_aux0": {
+      "delta": -0.017998521111156296,
+      "ic95": [
+        -0.04153664141502527,
+        0.004708271043241721
+      ],
+      "p_delta_menor_igual_0": 0.9365,
+      "remuestreos": 2000
+    },
+    "ponderada_aux1 − ponderada_aux0": {
+      "delta": -0.014318653357201616,
+      "ic95": [
+        -0.036194262135905354,
+        0.008048939540953806
+      ],
+      "p_delta_menor_igual_0": 0.9085,
+      "remuestreos": 2000
+    },
+    "ponderada_aux0 − normal_aux0": {
+      "delta": 0.0011801635007847588,
+      "ic95": [
+        -0.011876099086433506,
+        0.014254669265453462
+      ],
+      "p_delta_menor_igual_0": 0.427,
+      "remuestreos": 2000
+    },
+    "ponderada_aux1 − normal_aux1": {
+      "delta": 0.004860031254739439,
+      "ic95": [
+        -0.012057852804516636,
+        0.021249282655931852
+      ],
+      "p_delta_menor_igual_0": 0.285,
+      "remuestreos": 2000
+    }
+  }
+}

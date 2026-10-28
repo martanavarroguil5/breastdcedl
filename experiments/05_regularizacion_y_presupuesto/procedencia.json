@@ -1,0 +1,61 @@
+{
+  "fecha_archivo": "2026-10-28",
+  "origen": "Informes históricos recuperados y resúmenes ya migrados desde el repositorio anterior.",
+  "fuentes": [
+    {
+      "copia": "fuentes/control.json",
+      "repositorio": "breastdcedl",
+      "revision": "871046954046e10428b9f37c895ab4c087754b4c",
+      "ruta": "reports/validacion/cv_control/resumen.json",
+      "sha256_original": "672b9c1f20a23a1e6dc8fef0ec39a0e2041afaf95ef7bfff185d73f2212dba5e",
+      "sha256_copia": "672b9c1f20a23a1e6dc8fef0ec39a0e2041afaf95ef7bfff185d73f2212dba5e",
+      "tratamiento": "copia exacta"
+    },
+    {
+      "copia": "fuentes/lenta.json",
+      "repositorio": "breastdcedl",
+      "revision": "871046954046e10428b9f37c895ab4c087754b4c",
+      "ruta": "reports/validacion/cv_lenta/resumen.json",
+      "sha256_original": "d1ed05d5060d4d675e23d65024566cfce41d0049f127f4189748ebda44dcb9d8",
+      "sha256_copia": "d1ed05d5060d4d675e23d65024566cfce41d0049f127f4189748ebda44dcb9d8",
+      "tratamiento": "copia exacta"
+    },
+    {
+      "copia": "fuentes/media.json",
+      "repositorio": "breastdcedl",
+      "revision": "871046954046e10428b9f37c895ab4c087754b4c",
+      "ruta": "reports/validacion/cv_media/resumen.json",
+      "sha256_original": "535d7dd66de514fef1458e122a48871f9f1dc930501e6ed62a9241214f8c0613",
+      "sha256_copia": "535d7dd66de514fef1458e122a48871f9f1dc930501e6ed62a9241214f8c0613",
+      "tratamiento": "copia exacta"
+    },
+    {
+      "copia": "fuentes/presupuesto.json",
+      "repositorio": "breastdcedl",
+      "revision": "871046954046e10428b9f37c895ab4c087754b4c",
+      "ruta": "reports/validacion/cv_presupuesto/resumen.json",
+      "sha256_original": "1022f986e90cc7112f386fa272b30855b96f36110db224b441775c3e568d9814",
+      "sha256_copia": "1022f986e90cc7112f386fa272b30855b96f36110db224b441775c3e568d9814",
+      "tratamiento": "copia exacta"
+    },
+    {
+      "copia": "fuentes/presupuesto_coseno.json",
+      "repositorio": "breastdcedl",
+      "revision": "871046954046e10428b9f37c895ab4c087754b4c",
+      "ruta": "reports/validacion/cv_presupuesto_coseno/resumen.json",
+      "sha256_original": "7ea24f0e3b5d25828c2b6e74ed61d876ea2f4c5cdb3163fc82e1942b660975b1",
+      "sha256_copia": "7ea24f0e3b5d25828c2b6e74ed61d876ea2f4c5cdb3163fc82e1942b660975b1",
+      "tratamiento": "copia exacta"
+    },
+    {
+      "copia": "fuentes/curvas_originales.png",
+      "repositorio": "breastdcedl",
+      "revision": "871046954046e10428b9f37c895ab4c087754b4c",
+      "ruta": "experiments/img/perdidas_tres_recetas.png",
+      "sha256_original": "01770c299ab399623bf0bfb23b20e7de6a8b5b77fc615c5b53fc931ea4a82fd0",
+      "sha256_copia": "01770c299ab399623bf0bfb23b20e7de6a8b5b77fc615c5b53fc931ea4a82fd0",
+      "tratamiento": "copia exacta"
+    }
+  ],
+  "alcance": "Métricas agregadas y documentación. Sin pesos, imágenes ni predicciones individuales."
+}

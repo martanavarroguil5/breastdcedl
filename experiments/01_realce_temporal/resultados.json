@@ -1,0 +1,105 @@
+{
+  "titulo": "Realce temporal sobre el multimodal",
+  "fecha": "2026-10-10",
+  "estado": "Descartado",
+  "modelos": [
+    {
+      "nombre": "Multimodal de referencia",
+      "fuente": "fuentes/multimodal.json",
+      "ruta_fuente": "selected/metrics",
+      "campos_fuente": {
+        "auc_agrupada": "roc_auc",
+        "auc_media_folds": "mean_fold_roc_auc",
+        "ap": "average_precision",
+        "brier_crudo": "brier",
+        "fp": "fp",
+        "fn": "fn",
+        "tp": "tp",
+        "tn": "tn",
+        "umbral": "threshold"
+      },
+      "auc_agrupada": 0.7245682228010419,
+      "auc_media_folds": 0.7243111595174071,
+      "ap": 0.531645920079384,
+      "brier_crudo": 0.2108519049246439,
+      "fp": 272,
+      "fn": 95,
+      "tp": 227,
+      "tn": 503,
+      "umbral": 0.5,
+      "agregacion_cortes": "mediana"
+    },
+    {
+      "nombre": "Realce temporal",
+      "fuente": "fuentes/realce.json",
+      "ruta_fuente": "candidates/0/metrics",
+      "campos_fuente": {
+        "auc_agrupada": "roc_auc",
+        "auc_media_folds": "mean_fold_roc_auc",
+        "ap": "average_precision",
+        "brier_crudo": "brier",
+        "fp": "fp",
+        "fn": "fn",
+        "tp": "tp",
+        "tn": "tn",
+        "umbral": "threshold"
+      },
+      "auc_agrupada": 0.7260869565217392,
+      "auc_media_folds": 0.7289793983528314,
+      "ap": 0.536726158300461,
+      "brier_crudo": 0.21378849430799285,
+      "fp": 275,
+      "fn": 97,
+      "tp": 225,
+      "tn": 500,
+      "umbral": 0.5,
+      "agregacion_cortes": "media"
+    },
+    {
+      "nombre": "Realce regularizado",
+      "fuente": "fuentes/realce.json",
+      "ruta_fuente": "candidates/3/metrics",
+      "campos_fuente": {
+        "auc_agrupada": "roc_auc",
+        "auc_media_folds": "mean_fold_roc_auc",
+        "ap": "average_precision",
+        "brier_crudo": "brier",
+        "fp": "fp",
+        "fn": "fn",
+        "tp": "tp",
+        "tn": "tn",
+        "umbral": "threshold"
+      },
+      "auc_agrupada": 0.721991584852735,
+      "auc_media_folds": 0.7245837633821031,
+      "ap": 0.5241622041149955,
+      "brier_crudo": 0.20889483885751545,
+      "fp": 261,
+      "fn": 104,
+      "tp": 218,
+      "tn": 514,
+      "umbral": 0.5,
+      "agregacion_cortes": "media"
+    }
+  ],
+  "comparaciones": [
+    {
+      "nombre": "Realce − referencia",
+      "delta": 0.001519,
+      "limite_inferior": -0.009415,
+      "limite_superior": 0.011369,
+      "fuente": "fuentes/registro_realce.md",
+      "precision": "6 decimales, tal como se registró en el informe histórico"
+    },
+    {
+      "nombre": "Regularizado − referencia",
+      "delta": -0.002577,
+      "limite_inferior": -0.012555,
+      "limite_superior": 0.00715,
+      "fuente": "fuentes/registro_realce.md",
+      "precision": "6 decimales, tal como se registró en el informe histórico"
+    }
+  ],
+  "metrica_principal": "auc_agrupada",
+  "protocolo": "Selección histórica adaptativa sobre OOF; comparación de desarrollo."
+}

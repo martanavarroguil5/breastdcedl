@@ -1,0 +1,68 @@
+{
+  "titulo": "CNN cinética multiescala",
+  "fecha": "2026-10-21",
+  "estado": "Ajuste insuficiente",
+  "modelos": [
+    {
+      "nombre": "Cinética de referencia",
+      "fuente": "fuentes/informe.json",
+      "ruta_fuente": "results/reference",
+      "campos_fuente": {
+        "auc_agrupada": "pooled_raw_auc",
+        "auc_media_folds": "mean_fold_auc",
+        "auc_de_folds": "std_fold_auc",
+        "auc_por_fold": "fold_auc",
+        "ap": "average_precision",
+        "brier_calibrado": "crossfit_calibrated_brier",
+        "fp": "decision/fp",
+        "fn": "decision/fn"
+      },
+      "auc_agrupada": 0.5359807653776798,
+      "auc_media_folds": 0.5810144248470503,
+      "auc_de_folds": 0.016780600131371552,
+      "auc_por_fold": [
+        0.5582157258064515,
+        0.5767413190877337,
+        0.6027476576481735,
+        0.5765517241379311,
+        0.5908156975549619
+      ],
+      "ap": 0.34144248239124514,
+      "brier_calibrado": 0.20583840610066045,
+      "fp": 55,
+      "fn": 281
+    },
+    {
+      "nombre": "Cinética ajustada",
+      "fuente": "fuentes/informe.json",
+      "ruta_fuente": "results/selected",
+      "campos_fuente": {
+        "auc_agrupada": "pooled_raw_auc",
+        "auc_media_folds": "mean_fold_auc",
+        "auc_de_folds": "std_fold_auc",
+        "auc_por_fold": "fold_auc",
+        "ap": "average_precision",
+        "brier_calibrado": "crossfit_calibrated_brier",
+        "fp": "decision/fp",
+        "fn": "decision/fn"
+      },
+      "auc_agrupada": 0.5264035263474254,
+      "auc_media_folds": 0.5765933368618896,
+      "auc_de_folds": 0.030062707671024938,
+      "auc_por_fold": [
+        0.5348790322580645,
+        0.5767413190877337,
+        0.6157490262132856,
+        0.5647816091954022,
+        0.5908156975549619
+      ],
+      "ap": 0.3251139447841574,
+      "brier_calibrado": 0.20941803846618415,
+      "fp": 74,
+      "fn": 281
+    }
+  ],
+  "comparaciones": [],
+  "metrica_principal": "auc_media_folds",
+  "protocolo": "Evaluación exterior con selección interna; 5 folds y 2 semillas."
+}

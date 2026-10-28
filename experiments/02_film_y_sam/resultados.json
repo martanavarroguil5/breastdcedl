@@ -1,0 +1,189 @@
+{
+  "titulo": "FiLM, SAM y dependencia de la clínica",
+  "fecha": "2026-10-11/2026-10-12",
+  "estado": "Descartados",
+  "modelos": [
+    {
+      "nombre": "Control ponderado",
+      "fuente": "fuentes/film.json",
+      "ruta_fuente": "metrics/control_weighted",
+      "campos_fuente": {
+        "auc_agrupada": "raw/roc_auc",
+        "auc_media_folds": "raw/mean_fold_auc",
+        "ap": "raw/average_precision",
+        "brier_calibrado": "calibrated/brier",
+        "fp": "inner_youden/fp",
+        "fn": "inner_youden/fn"
+      },
+      "auc_agrupada": 0.7019675415748348,
+      "auc_media_folds": 0.7046842697828468,
+      "ap": 0.4948308088145734,
+      "brier_calibrado": 0.1877228003722181,
+      "fp": 297,
+      "fn": 112
+    },
+    {
+      "nombre": "FiLM ponderado",
+      "fuente": "fuentes/film.json",
+      "ruta_fuente": "metrics/film_weighted",
+      "campos_fuente": {
+        "auc_agrupada": "raw/roc_auc",
+        "auc_media_folds": "raw/mean_fold_auc",
+        "ap": "raw/average_precision",
+        "brier_calibrado": "calibrated/brier",
+        "fp": "inner_youden/fp",
+        "fn": "inner_youden/fn"
+      },
+      "auc_agrupada": 0.7014385894610298,
+      "auc_media_folds": 0.7015760662233361,
+      "ap": 0.5024091964869218,
+      "brier_calibrado": 0.18775286250054798,
+      "fp": 254,
+      "fn": 130
+    },
+    {
+      "nombre": "SAM ponderado",
+      "fuente": "fuentes/sam.json",
+      "ruta_fuente": "metrics/sam_weighted",
+      "campos_fuente": {
+        "auc_agrupada": "raw/roc_auc",
+        "auc_media_folds": "raw/mean_fold_auc",
+        "ap": "raw/average_precision",
+        "brier_calibrado": "calibrated/brier",
+        "fp": "inner_youden/fp",
+        "fn": "inner_youden/fn"
+      },
+      "auc_agrupada": 0.7070526948507313,
+      "auc_media_folds": 0.7057778453463464,
+      "ap": 0.4955311053623297,
+      "brier_calibrado": 0.18761114025130485,
+      "fp": 319,
+      "fn": 103
+    },
+    {
+      "nombre": "Control normal",
+      "fuente": "fuentes/film.json",
+      "ruta_fuente": "metrics/control_normal",
+      "campos_fuente": {
+        "auc_agrupada": "raw/roc_auc",
+        "auc_media_folds": "raw/mean_fold_auc",
+        "ap": "raw/average_precision",
+        "brier_calibrado": "calibrated/brier",
+        "fp": "inner_youden/fp",
+        "fn": "inner_youden/fn"
+      },
+      "auc_agrupada": 0.681667000601082,
+      "auc_media_folds": 0.6947006799163674,
+      "ap": 0.476551983488107,
+      "brier_calibrado": 0.18935926157786503,
+      "fp": 311,
+      "fn": 104
+    },
+    {
+      "nombre": "FiLM normal",
+      "fuente": "fuentes/film.json",
+      "ruta_fuente": "metrics/film_normal",
+      "campos_fuente": {
+        "auc_agrupada": "raw/roc_auc",
+        "auc_media_folds": "raw/mean_fold_auc",
+        "ap": "raw/average_precision",
+        "brier_calibrado": "calibrated/brier",
+        "fp": "inner_youden/fp",
+        "fn": "inner_youden/fn"
+      },
+      "auc_agrupada": 0.6717531556802244,
+      "auc_media_folds": 0.6953033809561485,
+      "ap": 0.47081715248324174,
+      "brier_calibrado": 0.19029923370837518,
+      "fp": 276,
+      "fn": 134
+    },
+    {
+      "nombre": "SAM normal",
+      "fuente": "fuentes/sam.json",
+      "ruta_fuente": "metrics/sam_normal",
+      "campos_fuente": {
+        "auc_agrupada": "raw/roc_auc",
+        "auc_media_folds": "raw/mean_fold_auc",
+        "ap": "raw/average_precision",
+        "brier_calibrado": "calibrated/brier",
+        "fp": "inner_youden/fp",
+        "fn": "inner_youden/fn"
+      },
+      "auc_agrupada": 0.6948787818072529,
+      "auc_media_folds": 0.7071391360650335,
+      "ap": 0.4856628457286901,
+      "brier_calibrado": 0.1872113546766354,
+      "fp": 299,
+      "fn": 102
+    }
+  ],
+  "comparaciones": [
+    {
+      "nombre": "FiLM ponderado − control",
+      "fuente": "fuentes/film.json",
+      "ruta_fuente": "primary_comparison",
+      "campos_fuente": {
+        "delta": "auc_delta",
+        "limite_inferior": "intervals_95/roc_auc/lower",
+        "limite_superior": "intervals_95/roc_auc/upper"
+      },
+      "delta": -0.0005289521138049924,
+      "limite_inferior": -0.011272891204167482,
+      "limite_superior": 0.010330795431777264
+    },
+    {
+      "nombre": "SAM ponderado − control",
+      "fuente": "fuentes/sam.json",
+      "ruta_fuente": "primary_comparison",
+      "campos_fuente": {
+        "delta": "auc_delta",
+        "limite_inferior": "intervals_95/roc_auc/lower",
+        "limite_superior": "intervals_95/roc_auc/upper"
+      },
+      "delta": 0.005085153275896537,
+      "limite_inferior": -0.006067421358445143,
+      "limite_superior": 0.015778000400721404
+    }
+  ],
+  "ablacion": {
+    "control_weighted": {
+      "full_raw_auc": 0.7019675415748348,
+      "no_visual_raw_auc": 0.7079463033460228,
+      "auc_delta_full_minus_ablated": -0.005978761771188057,
+      "full_mean_fold_auc": 0.7046842697828468,
+      "no_visual_mean_fold_auc": 0.7058474047476225,
+      "mean_abs_probability_change": 0.027934964606303903,
+      "median_abs_probability_change": 2.863910675277026e-08
+    },
+    "sam_weighted": {
+      "full_raw_auc": 0.7070526948507313,
+      "no_visual_raw_auc": 0.7070526948507313,
+      "auc_delta_full_minus_ablated": 0.0,
+      "full_mean_fold_auc": 0.7057778453463464,
+      "no_visual_mean_fold_auc": 0.7057778453463464,
+      "mean_abs_probability_change": 4.213901497132362e-07,
+      "median_abs_probability_change": 1.367927549011938e-08
+    },
+    "control_normal": {
+      "full_raw_auc": 0.681667000601082,
+      "no_visual_raw_auc": 0.7065397715888598,
+      "auc_delta_full_minus_ablated": -0.024872770987777848,
+      "full_mean_fold_auc": 0.6947006799163674,
+      "no_visual_mean_fold_auc": 0.705071790335305,
+      "mean_abs_probability_change": 0.08221111274122873,
+      "median_abs_probability_change": 0.052545846355590786
+    },
+    "sam_normal": {
+      "full_raw_auc": 0.6948787818072529,
+      "no_visual_raw_auc": 0.7011059907834101,
+      "auc_delta_full_minus_ablated": -0.006227208976157139,
+      "full_mean_fold_auc": 0.7071391360650335,
+      "no_visual_mean_fold_auc": 0.7050225890170041,
+      "mean_abs_probability_change": 0.039168638477499504,
+      "median_abs_probability_change": 0.021279238838920606
+    }
+  },
+  "metrica_principal": "auc_agrupada",
+  "protocolo": "Controles emparejados; selección, calibración y umbral internos por fold."
+}
