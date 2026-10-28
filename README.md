@@ -90,6 +90,25 @@ ese puerto desde el editor. La inferencia de la web utiliza CPU.
 Las variables clínicas son opcionales: se selecciona el submodelo del patrón
 disponible y, si faltan todas, se utiliza solo imagen.
 
+## Exploración en la interfaz
+
+La página de imagen permite consultar pérdidas y AUC por época, seleccionar
+cada fold y comparar sus resultados. La página combinada incluye un recorrido
+interactivo de la fusión con sus coeficientes reales, matrices de confusión
+según umbral y datos disponibles, curvas PR, calibración y diagnóstico de la
+brecha entre ajuste y validación de la etapa logística.
+
+Para actualizar esos recursos con las ejecuciones de train ya guardadas:
+
+```bash
+.venv/bin/python scripts/exportar_curvas_cnn.py
+.venv/bin/python scripts/diagnostico_fusion.py
+```
+
+El primer comando lee las historias de la CNN. El segundo reajusta las
+logísticas de los folds para calcular el diagnóstico; no cambia los paquetes
+finales ni entrena la CNN. Ambos utilizan únicamente resultados de train.
+
 ## Entrenamiento y reproducción
 
 Solo ejecutar estos comandos si se quiere hacer una nueva ejecución.

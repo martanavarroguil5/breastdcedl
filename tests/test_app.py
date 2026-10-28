@@ -39,6 +39,36 @@ class TestPaginas(unittest.TestCase):
         self.assertIn("submodelo subtipo+edad+volumen+imagen", textos)
         self.assertEqual(len(at.get("iframe")), 2)  # visor y red
 
+    def test_curvas_por_fold_y_epoca(self):
+        at = self.ejecutar("red_imagen.py")
+        selector = at.segmented_control(key="cnn_curvas_ambito")
+        self.assertEqual(len(selector.options), 6)
+        for fold in ("Fold 1", "Fold 5"):
+            at.segmented_control(key="cnn_curvas_ambito").set_value(fold).run()
+            at.select_slider(key=f"cnn_epoca_{fold}").set_value(1).run()
+            self.assertFalse(at.exception, [e.value for e in at.exception])
+            self.assertTrue(any("resume 3 redes" in c.value for c in at.caption))
+            self.assertTrue(any("Época 1 · entrenamiento" in m.value for m in at.markdown))
+        at.segmented_control(key="cnn_fold").set_value("Fold 3").run()
+        self.assertFalse(at.exception, [e.value for e in at.exception])
+        self.assertTrue(any("Fold 3 · AUC" in m.value for m in at.markdown))
+
+    def test_fusion_con_umbral_y_patron_clinico(self):
+        import json
+        from componentes import num
+
+        at = self.ejecutar("combinado.py")
+        self.assertEqual(len(at.get("iframe")), 1)
+        at.selectbox[0].set_value("subtipo+imagen").run()
+        at.segmented_control[0].set_value("Máximo macro-F1").run()
+        self.assertFalse(at.exception, [e.value for e in at.exception])
+        recurso = json.loads((APP / "recursos/modelo_fusion.json").read_text(encoding="utf-8"))
+        metrica = recurso["umbrales"]["subtipo+imagen"]["macro_f1"]
+        self.assertTrue(any(f"Umbral {num(metrica['umbral'])}" in c.value for c in at.caption))
+        self.assertEqual(len(recurso["diagnostico_generalizacion"]), 5)
+        self.assertTrue(recurso["pr"]["completa+imagen"])
+        self.assertTrue(recurso["calibracion"]["completa+imagen"])
+
 
 if __name__ == "__main__":
     unittest.main()
