@@ -1,0 +1,25 @@
+{
+  "fecha": "2026-10-28",
+  "pruebas_unitarias": 32,
+  "resultado": "correcto",
+  "pesos_verificados": 5,
+  "equivalencia": [
+    {
+      "dispositivo": "cpu",
+      "redes": 5,
+      "diferencia_maxima": 0.0,
+      "patrones_clinicos": 8
+    },
+    {
+      "dispositivo": "cuda",
+      "redes": 5,
+      "diferencia_maxima": 0.0,
+      "patrones_clinicos": 8
+    }
+  ],
+  "repositorio_original_sin_cambios": true,
+  "archivos_originales_verificados": 51,
+  "test_evaluado": false,
+  "archivos_dataset_identicos": 38122,
+  "dataset_independiente": true
+}

@@ -1,0 +1,71 @@
+{
+  "receta": {
+    "modelo": {
+      "anchos": [
+        24,
+        48,
+        96,
+        160
+      ],
+      "oculto": 64,
+      "dropout": 0.35,
+      "dropout_espacial": 0.1,
+      "escalas": [
+        256,
+        128,
+        64
+      ],
+      "lado": 128
+    },
+    "optimizador": "AdamW",
+    "lr": 0.0003,
+    "weight_decay": 0.01,
+    "lote": 64,
+    "epocas_max": 12,
+    "warmup_epocas": 2,
+    "paciencia": 12,
+    "epocas_min": 12,
+    "ventana_auc": 3,
+    "ema": 0.98,
+    "clip_grad": 1.0,
+    "afin": {
+      "escala": 0.05,
+      "traslacion": 0.03,
+      "rotacion_grados": 10
+    },
+    "fraccion_seleccion": 0.15,
+    "lambda_aux": 0.0,
+    "tta": true,
+    "pacientes_diagnostico_fit": 150,
+    "cortes_por_paciente": 3,
+    "calendario": "lineal",
+    "checkpoint": "ultima"
+  },
+  "folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "semillas": [
+    42,
+    2026,
+    7
+  ],
+  "perdidas": [
+    "normal",
+    "ponderada"
+  ],
+  "lambdas": [
+    0.0
+  ],
+  "control": "cv_media",
+  "entorno": {
+    "python": "3.12.3",
+    "torch": "2.14.0+cu130",
+    "cuda": "13.0",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "host": "Linux-PC-Jorge"
+  }
+}

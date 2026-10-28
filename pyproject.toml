@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "breastdcedl-pcr"
+version = "1.0.0"
+description = "Predicción de respuesta patológica completa con resonancia DCE y datos clínicos"
+readme = "README.md"
+requires-python = ">=3.12"
+dynamic = ["dependencies"]
+
+[project.optional-dependencies]
+web = ["streamlit==1.65.0", "altair==6.3.0"]
+
+[project.scripts]
+breastdcedl = "training.__main__:main"
+
+[tool.setuptools]
+packages = ["training", "utils", "experiments", "experiments.analisis"]
+package-dir = {training = "src/training", utils = "src/utils", experiments = "experiments"}
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}

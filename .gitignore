@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.DS_Store
+build/
+dist/
+dataset/breastdcedl/
+runs/*
+!runs/README.md
+*.npy
+*.pt
+*.log
+!reports/modelo_elegido/imagen_v2/pesos/*.pt
+!reports/modelo_elegido/imagen_v2/registro.log
