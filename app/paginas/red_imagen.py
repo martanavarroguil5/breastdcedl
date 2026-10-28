@@ -6,6 +6,16 @@ import estado
 from componentes import (COBRE, COHORTES, GRIS, TINTA2, _base, aviso, bandas_grafica, bloques_3d, cabecera, calibracion,
                          curvas_comparadas, curvas_epoca, grafica, matriz, num, pct, pie, pr, recurso, red_neuronal,
                          roc, seccion, tabla, tarjetas)
+from vista_test import mostrar_test
+
+evaluacion_test = recurso("evaluacion_test")
+if evaluacion_test:
+    vista = st.segmented_control("Resultados de la CNN", ["Desarrollo y arquitectura", "Test final"],
+                                 default="Desarrollo y arquitectura", key="cnn_evaluacion")
+    if vista == "Test final":
+        mostrar_test(evaluacion_test, "imagen")
+        pie()
+        st.stop()
 
 img = recurso("modelo_imagen")
 m = img["metricas"]
@@ -118,7 +128,7 @@ with st.expander("Tabla de capas", icon=":material/table_rows:"):
 
 # ---------------------------------------------------------------- discriminación
 seccion("4", "Capacidad de discriminación",
-        "Predicciones fuera de fold de las 1.097 pacientes de desarrollo. El test público no se ha usado.")
+        "Predicciones fuera de fold de las 1.097 pacientes de desarrollo. Estas gráficas no incluyen test.")
 c1, c2 = st.columns(2, gap="large")
 with c1:
     grafica(roc({"CNN de imagen": img["roc"], "Solo cohorte": img["roc_cohorte"]},
@@ -207,5 +217,7 @@ with st.expander("Calibración", icon=":material/tune:"):
 seccion("6", "Conclusión")
 aviso("Con imagen sola y una CNN desde cero se observa una <b>señal pequeña en desarrollo</b>: el intervalo "
       "reportado de la AUC excluye el azar y la variación entre folds es baja. Las curvas permiten examinar el "
-      "sobreajuste, pero no descartarlo. La confirmación final en test sigue pendiente.", "info")
+      "sobreajuste, pero no descartarlo. "
+      + ("La evaluación realizada está disponible en la vista Test final." if evaluacion_test
+         else "La confirmación final en test sigue pendiente."), "info")
 pie()

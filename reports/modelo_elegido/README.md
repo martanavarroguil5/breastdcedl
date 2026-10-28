@@ -13,6 +13,10 @@ el paquete de imagen. La calibración, los umbrales y las métricas se conservan
 La reorganización cambia nombres y rutas, no los valores de los pesos.
 El paquete de imagen valida los SHA-256 de sus cinco archivos; la fusión
 valida la huella del manifiesto de imagen con los nombres actuales.
-El test de estos paquetes sigue sin evaluar.
+El test de ambos paquetes se cerró el **29/10/2026**, con los pesos y
+umbrales existentes. AUC: imagen 0,552 [0,460; 0,646]; fusión 0,703
+[0,619; 0,780]. [Informe final](../evaluacion_final/fusion_clinica_v1/README.md).
+Las marcas `evaluacion_test.json` registran el cierre; los manifiestos originales
+se mantienen intactos para conservar sus huellas.
 
 Verificación: `.venv/bin/python scripts/verificar_modelos.py`.

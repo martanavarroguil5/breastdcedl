@@ -1,0 +1,62 @@
+{
+  "fecha_cierre": "2026-10-29T00:02:50.580584+01:00",
+  "revision_codigo": "f9269a2d1214cc18c26c1c0c3a121a3fa5a1b23b",
+  "paquete": "fusion_clinica_v1",
+  "imagen": "imagen_v2",
+  "politica": "Youden guardado por patrón clínico; respaldo CNN con su Youden guardado. Sin optimizar umbrales en test.",
+  "metrica_principal": "ROC-AUC por paciente del combinado en el test público.",
+  "secundarias": [
+    "AP",
+    "Brier",
+    "BCE",
+    "sensibilidad",
+    "especificidad",
+    "precisión pCR",
+    "exactitud",
+    "F1 pCR",
+    "macro-F1",
+    "matriz de confusión",
+    "AUC por cohorte"
+  ],
+  "comparacion": "CNN sola, a partir de las mismas predicciones de imagen y su calibración y umbral previamente guardados; sin repetir inferencia.",
+  "incertidumbre": {
+    "metodo": "bootstrap estratificado por clase, pareado para delta de AUC combinado menos CNN",
+    "remuestreos": 5000,
+    "semilla": 20261029,
+    "nivel": 0.95
+  },
+  "calibracion": "Solo aplicación de las transformaciones y coeficientes congelados. Diagrama descriptivo en 10 intervalos fijos de probabilidad, sin recalibrar.",
+  "ajustes_en_test": false,
+  "limite": "El test público se consultó con versiones históricas. No equivale a una validación externa inédita del proyecto.",
+  "sha256_modelos": {
+    "reports/modelo_elegido/README.md": "4353445f03c50b65695c7d4eb5d6c78eb438dcb0bbedf589f4337c238ead69d5",
+    "reports/modelo_elegido/fusion_clinica_v1/paquete.json": "ddf7c63aead9ab413a274dc404ee9553636912e9eab8629e6f9e84b26a266cb3",
+    "reports/modelo_elegido/imagen_v2/historia_semilla1234.csv": "d53800b515b461045e472ebb0c2147d0dcaf0790c0b943b16b91df2ee33d6679",
+    "reports/modelo_elegido/imagen_v2/historia_semilla2026.csv": "f4c717a897b6eefe4b31457955a721ee40cb0d0190c07e260c8632cf0e26a0fe",
+    "reports/modelo_elegido/imagen_v2/historia_semilla31415.csv": "d8aa6d7536acf38a2adfb69c9d77ae3eb3ad185401470b8c344a705ff2a6fc43",
+    "reports/modelo_elegido/imagen_v2/historia_semilla42.csv": "6d61e81a988e85c52fa0a60ad99047bb9eb0bc74a8093f47ff54af2abfa62af5",
+    "reports/modelo_elegido/imagen_v2/historia_semilla7.csv": "84df39258d78f3283ab8d53ddcf9c93513f473f745262d6e7c683a4c28f21417",
+    "reports/modelo_elegido/imagen_v2/paquete.json": "35cd6958b01c6f3022c358fe478d13c9e880c140d16251c697daa6fdf3b13db2",
+    "reports/modelo_elegido/imagen_v2/pesos/semilla1234.pt": "b11310a17eeb5e0da7553a4f80aa7edc9397b59602c0db2e685b75930b31b31b",
+    "reports/modelo_elegido/imagen_v2/pesos/semilla2026.pt": "500e4d1210c17355272b22d72d731c341765fc2d17035f31c824adcfb945185a",
+    "reports/modelo_elegido/imagen_v2/pesos/semilla31415.pt": "9e50cf9161b1032781231af01ed40108ebc0882be8e11271b1a50836614af9a4",
+    "reports/modelo_elegido/imagen_v2/pesos/semilla42.pt": "ee83e25d1c2927e9290a7b867f4f24d11201297e36cce6ca1bf09c8a05025e84",
+    "reports/modelo_elegido/imagen_v2/pesos/semilla7.pt": "8eaf4b3134275fe3fa7f18edb0e64610fa033bb2135bdd5afe33c3f16c340c33",
+    "reports/modelo_elegido/imagen_v2/registro.log": "c24b3fca9451fe40c6f789b4f52fa1d9ed274deb84d7f0410fad5bf92ce2aa54"
+  },
+  "umbrales_fusion": {
+    "imagen": 0.3001920962308828,
+    "subtipo+imagen": 0.3246092126977961,
+    "edad+imagen": 0.2866043349537919,
+    "volumen+imagen": 0.2943127645223677,
+    "subtipo+edad+imagen": 0.3003642210388019,
+    "subtipo+volumen+imagen": 0.3185346874395101,
+    "edad+volumen+imagen": 0.286764437128458,
+    "subtipo+edad+volumen+imagen": 0.2580936926176536
+  },
+  "umbral_cnn": 0.28781074429583536,
+  "sha256_metadata": {
+    "patients.csv": "ca3b1f8e4d1bc1abf276659bda60520075ace9bd384d623e34d85746ebf50885",
+    "samples.csv": "7ddd0ecc8272e6460211bd63c1479513bf815e3ea518d1b6bafdcd69f9a75c03"
+  }
+}

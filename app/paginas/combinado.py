@@ -4,6 +4,16 @@ import streamlit as st
 
 from componentes import (COBRE, GRIS, TINTA2, _base, aviso, bandas_grafica, cabecera, calibracion,
                          grafica, matriz, num, pct, pie, pr, recurso, roc, seccion, tabla, tarjetas, estructura_fusion)
+from vista_test import mostrar_test
+
+evaluacion_test = recurso("evaluacion_test")
+if evaluacion_test:
+    vista = st.segmented_control("Resultados del combinado", ["Test final", "Validación cruzada"],
+                                 default="Test final", key="fusion_evaluacion") or "Test final"
+    if vista == "Test final":
+        mostrar_test(evaluacion_test)
+        pie()
+        st.stop()
 
 fus = recurso("modelo_fusion")
 if not fus:
@@ -17,9 +27,9 @@ prevalencia = fus["bandas"]["subtipo+edad+volumen+imagen"]["prevalencia"]
 
 cabecera("Modelo 2 · imagen + clínica", "Evaluación del <em>modelo combinado</em>",
          "Regresión logística regularizada sobre la puntuación de imagen, edad, volumen, HR y HER2. "
-         "Resultados por paciente en validación cruzada anidada; test reservado.",
+         "Resultados de desarrollo por paciente en validación cruzada anidada.",
          meta=[("variables", "5"), ("evaluación", "5 folds anidados"),
-               ("regularización", "L2 · C = 1"), ("test", "pendiente")])
+               ("regularización", "L2 · C = 1"), ("test", "evaluado · vista separada" if evaluacion_test else "pendiente")])
 tarjetas([
     {"t": "Discriminación · AUC", "v": num(m["auc_media_folds"]), "d": f"± {num(m['auc_de_folds'])} entre folds",
      "acento": True, "ayuda": "AUC media en validación anidada. 0,5 = azar; 1 = separación perfecta."},
@@ -70,7 +80,8 @@ if umbrales:
              (("sensibilidad", "Sensibilidad"), ("especificidad", "Especificidad"),
               ("precision_pcr", "Valor predictivo positivo"), ("exactitud", "Exactitud"),
               ("f1_pcr", "F1 pCR"), ("macro_f1", "Macro-F1"))]))
-    st.caption("Umbrales elegidos con estas mismas OOF: las métricas de clasificación pueden ser optimistas. Test pendiente.")
+    st.caption("Umbrales elegidos con estas mismas OOF: las métricas de clasificación pueden ser optimistas. "
+               + ("La vista Test final aplica únicamente el Youden congelado." if evaluacion_test else "Test pendiente."))
 
 seccion("3", "Calidad de las probabilidades")
 c1, c2 = st.columns(2, gap="large")
@@ -151,5 +162,7 @@ else:
 seccion("6", "Conclusión")
 aviso("<b>Discriminación moderada en validación anidada.</b> El combinado obtiene AUC 0,714 y AP 0,505; "
       "sus probabilidades mejoran el Brier de la referencia constante. Esto no basta para afirmar "
-      "buena calibración ni ausencia de sobreajuste. <b>Evaluación final en test pendiente.</b>", "clave")
+      "buena calibración ni ausencia de sobreajuste. "
+      + ("<b>El test realizado se muestra en su vista independiente.</b>" if evaluacion_test
+         else "<b>Evaluación final en test pendiente.</b>"), "clave")
 pie()

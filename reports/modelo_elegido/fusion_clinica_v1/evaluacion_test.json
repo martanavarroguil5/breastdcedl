@@ -1,0 +1,20 @@
+{
+  "paquete": "fusion_clinica_v1",
+  "pacientes": 176,
+  "pcr": 53,
+  "auc": 0.7025617425985581,
+  "auc_solo_imagen": 0.5519251418929284,
+  "submodelos_usados": {
+    "subtipo+edad+volumen+imagen": 174,
+    "edad+volumen+imagen": 2
+  },
+  "TP": 38,
+  "FP": 54,
+  "TN": 69,
+  "FN": 15,
+  "auc_por_cohorte": {
+    "duke": 0.5420875420875421,
+    "spy1": 0.7789855072463768,
+    "spy2": 0.7523320895522388
+  }
+}

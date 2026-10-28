@@ -40,14 +40,17 @@ tres vistas centrales con un tronco compartido. Tiene 593.716 parámetros.
 Cada paciente se representa por la media de las probabilidades de sus cortes;
 la inferencia promedia cinco redes y cuatro reflexiones.
 
-| Paquete | Configuración elegida | AUC media de CV |
-|---|---|---:|
-| `imagen_v2` | Receta `presupuesto`, 12 épocas, pérdida ponderada, sin tareas auxiliares | 0,581 ± 0,018 |
-| `fusion_clinica_v1` | Regresión logística sobre la imagen y la clínica disponible | 0,714 ± 0,033 |
+| Paquete | Configuración elegida | AUC media de CV | AUC test [IC95 %] |
+|---|---|---:|---:|
+| `imagen_v2` | Receta `presupuesto`, 12 épocas, pérdida ponderada, sin tareas auxiliares | 0,581 ± 0,018 | 0,552 [0,460; 0,646] |
+| `fusion_clinica_v1` | Regresión logística sobre la imagen y la clínica disponible | 0,714 ± 0,033 | 0,703 [0,619; 0,780] |
 
 La imagen mejora la AUC frente a la clínica sola en +0,006, con IC95 %
-[−0,001; +0,013]; esta diferencia no confirma una mejora. El test permanece
-sin evaluar. Los protocolos y sus limitaciones están en
+[−0,001; +0,013] en desarrollo; esta diferencia no confirma una mejora.
+El test público se cerró el **29/10/2026**, con Youden congelado, sin
+reentrenamiento ni ajustes sobre test. El combinado obtuvo 38 TP, 69 TN,
+54 FP y 15 FN en 176 pacientes. [Informe completo](reports/evaluacion_final/fusion_clinica_v1/README.md).
+Los protocolos y sus limitaciones están en
 [catálogo de experimentos](experiments/README.md) y en
 [las lecciones del proyecto](experiments/LECCIONES.md).
 
@@ -92,6 +95,12 @@ Las variables clínicas son opcionales: se selecciona el submodelo del patrón
 disponible y, si faltan todas, se utiliza solo imagen.
 
 ## Exploración en la interfaz
+
+Inicio e Imagen + clínica muestran por defecto **Test final**. La validación
+cruzada permanece en una vista independiente. La página CNN de imagen
+también incluye su resultado de test, calculado con la misma inferencia.
+Hay matrices de confusión, ROC, PR, calibración observada y desglose por
+cohorte; el umbral de test permanece fijo.
 
 La página de imagen permite consultar pérdidas y AUC por época, seleccionar
 cada fold y comparar sus resultados. La página combinada incluye un recorrido
@@ -149,4 +158,16 @@ desde las ejecuciones de train. `scripts/entrenar.py` expone la misma CLI.
 La separación es por paciente. El fold exterior no selecciona checkpoints;
 el test no decide arquitectura, calibración ni umbral. La evaluación de test
 es una acción final explícita con `evaluar-test --confirmo-modelo-congelado`.
-No se ha ejecutado durante la reorganización.
+El test actual ya está evaluado. Las marcas de evaluación impiden repetirlo
+accidentalmente. El test público también se consultó con versiones históricas;
+no equivale a validación externa inédita. La validación privada sigue pendiente.
+
+Para regenerar el informe y el recurso del panel desde las predicciones
+guardadas, sin cargar imágenes ni ejecutar de nuevo los modelos:
+
+```bash
+.venv/bin/python scripts/exportar_test.py
+```
+
+Las predicciones individuales se conservan localmente fuera de Git. Los
+informes agregados y el protocolo fijado antes de evaluar sí se versionan.

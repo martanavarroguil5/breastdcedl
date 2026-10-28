@@ -876,15 +876,17 @@ def matriz(r: dict) -> alt.Chart:
     return _base(alt.layer(celdas, texto), 260)
 
 
-def calibracion(puntos: list[dict]) -> alt.Chart:
+def calibracion(puntos: list[dict], intervalos_fijos: bool = False) -> alt.Chart:
     df = pd.DataFrame(puntos)
+    grupo = "intervalo" if intervalos_fijos else "decil"
     lim = max(0.6, df[["predicha", "observada"]].max().max() + 0.05)
     diag = alt.Chart(pd.DataFrame({"x": [0, lim], "y": [0, lim]})).mark_line(color=TENUE, strokeDash=[2, 3]).encode(x="x:Q", y="y:Q")
     linea = alt.Chart(df).mark_line(color=COBRE, strokeWidth=2, point=alt.OverlayMarkDef(size=80, filled=True, stroke=PANEL, strokeWidth=2)).encode(
-        x=alt.X("predicha:Q", title="Probabilidad predicha (media del decil)", scale=alt.Scale(domain=[0, lim])),
-        y=alt.Y("observada:Q", title="pCR observada en el decil", scale=alt.Scale(domain=[0, lim])),
+        x=alt.X("predicha:Q", title=f"Probabilidad predicha (media del {grupo})", scale=alt.Scale(domain=[0, lim])),
+        y=alt.Y("observada:Q", title=f"pCR observada en el {grupo}", scale=alt.Scale(domain=[0, lim])),
         tooltip=[alt.Tooltip("predicha:Q", format=".3f"), alt.Tooltip("observada:Q", format=".3f"), "n:Q"])
-    return _base(alt.layer(diag, linea).properties(title="Calibración por deciles"), 320)
+    titulo = "Calibración · intervalos fijos de 0,1" if intervalos_fijos else "Calibración por deciles"
+    return _base(alt.layer(diag, linea).properties(title=titulo), 320)
 
 
 def bandas_grafica(info: dict, titulo: str) -> alt.Chart:

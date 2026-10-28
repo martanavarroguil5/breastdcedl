@@ -14,3 +14,4 @@ runs/*
 *.log
 !reports/modelo_elegido/imagen_v2/pesos/*.pt
 !reports/modelo_elegido/imagen_v2/registro.log
+reports/modelo_elegido/*/predicciones_test.csv

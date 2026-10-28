@@ -58,9 +58,10 @@ class TestPaginas(unittest.TestCase):
         from componentes import num
 
         at = self.ejecutar("combinado.py")
+        at.segmented_control(key="fusion_evaluacion").set_value("Validación cruzada").run()
         self.assertEqual(len(at.get("iframe")), 1)
         at.selectbox[0].set_value("subtipo+imagen").run()
-        at.segmented_control[0].set_value("Máximo macro-F1").run()
+        next(c for c in at.segmented_control if "Máximo macro-F1" in c.options).set_value("Máximo macro-F1").run()
         self.assertFalse(at.exception, [e.value for e in at.exception])
         recurso = json.loads((APP / "recursos/modelo_fusion.json").read_text(encoding="utf-8"))
         metrica = recurso["umbrales"]["subtipo+imagen"]["macro_f1"]
@@ -69,6 +70,35 @@ class TestPaginas(unittest.TestCase):
         self.assertTrue(recurso["pr"]["completa+imagen"])
         self.assertTrue(recurso["calibracion"]["completa+imagen"])
 
+
+    def test_resultados_finales_separados_de_validacion(self):
+        import json
+        from componentes import num, pct
+
+        recurso = json.loads((APP / "recursos/evaluacion_test.json").read_text())
+        at = self.ejecutar("combinado.py")
+        self.assertEqual(at.segmented_control(key="fusion_evaluacion").value, "Test final")
+        self.assertFalse(any("Máximo macro-F1" in c.options for c in at.segmented_control))
+        m = recurso["modelos"]["fusion"]
+        textos = " ".join(x.value for x in at.markdown)
+        self.assertIn(num(m["auc"]), textos)
+        self.assertIn(pct(m["clasificacion"]["sensibilidad"], 1), textos)
+        self.assertIn("resultado en test", textos)
+        self.assertNotIn("test pendiente", textos.lower())
+        at.segmented_control(key="fusion_evaluacion").set_value("Validación cruzada").run()
+        self.assertFalse(at.exception)
+        self.assertEqual(len(at.get("iframe")), 1)
+        at.segmented_control(key="fusion_evaluacion").set_value("Test final").run()
+        self.assertFalse(at.exception)
+        self.assertEqual(len(at.get("iframe")), 0)
+        at = self.ejecutar("red_imagen.py")
+        at.segmented_control(key="cnn_evaluacion").set_value("Test final").run()
+        self.assertFalse(at.exception)
+        self.assertIn(num(recurso["modelos"]["imagen"]["auc"]), " ".join(x.value for x in at.markdown))
+        at = self.ejecutar("resumen.py")
+        self.assertEqual(at.segmented_control(key="resumen_evaluacion").value, "Test final")
+        at.segmented_control(key="resumen_evaluacion").set_value("Validación cruzada").run()
+        self.assertFalse(at.exception)
 
 if __name__ == "__main__":
     unittest.main()

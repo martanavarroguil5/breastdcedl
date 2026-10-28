@@ -1,5 +1,8 @@
 # Lecciones de todo el proyecto y diseño de RedDCE
 
+> Actualización del 29/10/2026: test del paquete vigente completado con Youden congelado. AUC combinado 0,703 [0,619; 0,780], CNN 0,552 [0,460; 0,646]. [Informe final](../reports/evaluacion_final/fusion_clinica_v1/README.md). Las secciones siguientes conservan el contexto y las decisiones de las fechas indicadas; las menciones históricas a test pendiente no describen el estado actual.
+
+
 Síntesis de los experimentos y decisiones de diseño hasta el 27/10/2026.
 Las referencias V001–V008 corresponden a la etapa anterior, conservada
 en el repositorio original; su historial Git no forma parte de este proyecto.

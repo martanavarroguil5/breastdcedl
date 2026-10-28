@@ -21,7 +21,7 @@ Selección de los ensayos que explican las principales decisiones del proyecto. 
 - **DE e IC95 %:** la DE describe dispersión entre folds; el IC95 % de la diferencia se obtiene por bootstrap pareado. Una diferencia cuyo intervalo incluye cero no confirma mejora ni equivalencia.
 - **FP y FN:** el positivo es pCR. Los errores dependen del umbral y la calibración especificados en cada ficha.
 - **Estado:** «descartado» significa que no se adoptó por sus resultados; no implica que fallara técnicamente ni que toda la familia de métodos sea inferior.
-- **Test:** este catálogo usa resultados de desarrollo. El historial contiene test de versiones anteriores; no se reutiliza como confirmación de los paquetes actuales. El test de estos últimos sigue pendiente.
+- **Test:** este catálogo usa resultados de desarrollo. El historial contiene test de versiones anteriores; no se reutiliza como confirmación de los paquetes actuales. El test de los paquetes actuales se cerró el 29/10/2026: [informe final](../reports/evaluacion_final/fusion_clinica_v1/README.md). Las fichas históricas conservan el estado que tenían al cerrar cada ensayo.
 
 No se publica una clasificación conjunta de AUC entre protocolos distintos. La base vigente es [imagen_v2](../reports/modelo_elegido/imagen_v2/) y [fusion_clinica_v1](../reports/modelo_elegido/fusion_clinica_v1/).
 

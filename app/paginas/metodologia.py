@@ -1,7 +1,9 @@
 import pandas as pd
 import streamlit as st
 
-from componentes import aviso, cabecera, pasos, pie, seccion
+from componentes import aviso, cabecera, pasos, pie, recurso, seccion
+
+evaluacion_test = recurso("evaluacion_test")
 
 cabecera("Proyecto", "Datos y metodología",
          "Qué datos se usan, cómo se separan, cómo se evalúa y qué límites tiene el resultado.",
@@ -73,16 +75,21 @@ pasos([
     ("Paciente", "Media de las probabilidades de sus cortes y de las redes"),
     ("Test único", "El test público se evalúa una vez, con el modelo congelado"),
 ])
-aviso("<b>Reglas.</b> Nada del test ni de la validación privada interviene en la arquitectura, las épocas, la "
-      "calibración, los umbrales ni las bandas. La comparación entre modelos usa un bootstrap pareado estratificado "
-      "por fold y clase.", "clave")
+aviso("<b>Reglas del cierre.</b> Los pesos, la calibración y los umbrales del paquete actual se fijan antes del test. "
+      "No se retocan con sus resultados. Las comparaciones de CV usan bootstrap pareado por fold y clase; "
+      "la comparación de test remuestrea las mismas pacientes por clase.", "clave")
+if evaluacion_test:
+    aviso("<b>Test completado el " + "/".join(reversed(evaluacion_test["fecha"].split("-"))) + ".</b> "
+          + str(evaluacion_test["n_pacientes"]) + " pacientes, con Youden congelado y sin reentrenamiento. "
+          "Resultados disponibles en Imagen + clínica y CNN de imagen, dentro de Test final.", "info")
 
 seccion("4", "Limitaciones")
 st.markdown(
     "- **Señal de imagen débil:** AUC ≈ 0,58 con una CNN desde cero y ≈1.100 pacientes. Modelos grandes "
     "preentrenados publicados tampoco funcionan en Duke (AUC ≈ 0,54).\n"
-    "- **Desarrollo adaptativo:** el train se ha usado en muchas pruebas; la confirmación honesta es el test y la "
-    "validación privada del profesorado.\n"
+    "- **Desarrollo adaptativo:** el train se ha usado en muchas pruebas y el test público ya se consultó con "
+    "versiones históricas. El cierre actual no equivale a una validación externa inédita; la validación privada "
+    "del profesorado sigue pendiente.\n"
     "- **Volumen tumoral:** en Duke se midió de otra forma que en I-SPY.\n"
     "- **Datos clínicos en la evaluación privada:** no vienen en <code>patients.csv</code>; si faltan, la web usa el "
     "submodelo correspondiente o la CNN sola.\n"

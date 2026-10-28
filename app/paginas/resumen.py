@@ -1,11 +1,12 @@
 import streamlit as st
 
 import estado
-from componentes import aviso, destinos, num, pasos, pie, portada, recurso, seccion, tarjetas
+from componentes import aviso, destinos, num, pasos, pct, pie, portada, recurso, seccion, tarjetas
 
 img = recurso("modelo_imagen")
 fus = recurso("modelo_fusion")
 m = img["metricas"]
+evaluacion_test = recurso("evaluacion_test")
 
 portada(estado.portada(), "Predicción de la respuesta patológica completa en <em>cáncer de mama</em>",
         "Modelo que estima, a partir de la resonancia magnética con contraste (DCE-MRI) previa a la quimioterapia "
@@ -20,27 +21,46 @@ aviso("<b>Uso exclusivamente educativo.</b> Una probabilidad no es una certeza: 
 # Escala de las barras: AUC entre el azar (0,5) y la perfección (1).
 escala = lambda auc: (auc - 0.5) / 0.5
 seccion("1", "Resultados principales")
-if fus:
-    r = fus["resumen"]["brazos"][fus["resumen"]["alias"]["completa+imagen"]]
-    fusion = {"t": "Imagen + clínica", "v": num(r["auc_media_folds"]), "acento": True,
-              "d": f"AUC media ± {num(r['auc_de_folds'])} · CV anidada", "barra": escala(r["auc_media_folds"]),
-              "barra_txt": "0,5 → 1", "ayuda": "Regresión logística sobre la puntuación de la CNN, edad, volumen "
-              "tumoral, HR y HER2. Ningún coeficiente vio el fold que evalúa."}
+ambito = "Validación cruzada"
+if evaluacion_test:
+    ambito = st.segmented_control("Resultados principales", ["Test final", "Validación cruzada"],
+                                  default="Test final", key="resumen_evaluacion") or "Test final"
+if ambito == "Test final":
+    t = evaluacion_test
+    combinado, cnn = t["modelos"]["fusion"], t["modelos"]["imagen"]
+    tarjetas([
+        {"t": "Imagen + clínica · test", "v": num(combinado["auc"]), "acento": True,
+         "d": f"AUC · IC95 % {num(combinado['auc_ic95'][0])}–{num(combinado['auc_ic95'][1])}"},
+        {"t": "CNN de imagen · test", "v": num(cnn["auc"]),
+         "d": f"AUC · IC95 % {num(cnn['auc_ic95'][0])}–{num(cnn['auc_ic95'][1])}"},
+        {"t": "Pacientes de test", "v": str(t["n_pacientes"]),
+         "d": f"{t['n_pcr']} con pCR · {pct(t['prevalencia'], 1)}"},
+        {"t": "Evaluación completada", "v": "Youden", "d": "Umbrales fijados antes del test · " + "/".join(reversed(t["fecha"].split("-")))},
+    ])
+    st.caption("El detalle de errores, curvas y resultados por cohorte está en Imagen + clínica → Test final. "
+               "Los intervalos de test son IC95 %, no desviaciones entre folds.")
 else:
-    fusion = {"t": "Imagen + clínica", "v": "…", "d": "Evaluación anidada en marcha",
-              "ayuda": "Se está midiendo sin fugas cuánto aporta la imagen sobre los datos clínicos."}
-tarjetas([
-    {"t": "CNN de imagen", "v": num(m["auc_media_folds"]), "d": f"AUC media ± {num(m['auc_de_folds'])} en 5 folds",
-     "barra": escala(m["auc_media_folds"]), "barra_txt": "0,5 → 1",
-     "ayuda": "Media de la AUC por paciente de los 5 folds exteriores. Juntando las 1.097 pacientes: "
-              f"{num(m['auc_agrupada'])} (IC95 % {num(m['auc_ic95'][0])}–{num(m['auc_ic95'][1])})."},
-    fusion,
-    {"t": "Pacientes de desarrollo", "v": "1.097", "d": f"{img['n_pcr']} con pCR ({round(100 * m['prevalencia'])} %)",
-     "barra": m["prevalencia"], "barra_txt": "con pCR",
-     "ayuda": "Train: tres cohortes (I-SPY2, Duke, I-SPY1), ≈10 cortes por paciente. La separación es siempre por paciente."},
-    {"t": "Test reservado", "v": "176", "d": "Reservado; aún no evaluado",
-     "ayuda": "El test público se evaluará una sola vez con el modelo congelado. No interviene en ninguna decisión."},
-])
+    if fus:
+        r = fus["resumen"]["brazos"][fus["resumen"]["alias"]["completa+imagen"]]
+        fusion = {"t": "Imagen + clínica", "v": num(r["auc_media_folds"]), "acento": True,
+                  "d": f"AUC media ± {num(r['auc_de_folds'])} · CV anidada", "barra": escala(r["auc_media_folds"]),
+                  "barra_txt": "0,5 → 1", "ayuda": "Regresión logística sobre la puntuación de la CNN, edad, volumen "
+                  "tumoral, HR y HER2. Ningún coeficiente vio el fold que evalúa."}
+    else:
+        fusion = {"t": "Imagen + clínica", "v": "…", "d": "Evaluación anidada en marcha",
+                  "ayuda": "Se está midiendo sin fugas cuánto aporta la imagen sobre los datos clínicos."}
+    tarjetas([
+        {"t": "CNN de imagen", "v": num(m["auc_media_folds"]), "d": f"AUC media ± {num(m['auc_de_folds'])} en 5 folds",
+         "barra": escala(m["auc_media_folds"]), "barra_txt": "0,5 → 1",
+         "ayuda": "Media de la AUC por paciente de los 5 folds exteriores. Juntando las 1.097 pacientes: "
+                  f"{num(m['auc_agrupada'])} (IC95 % {num(m['auc_ic95'][0])}–{num(m['auc_ic95'][1])})."},
+        fusion,
+        {"t": "Pacientes de desarrollo", "v": "1.097", "d": f"{img['n_pcr']} con pCR ({round(100 * m['prevalencia'])} %)",
+         "barra": m["prevalencia"], "barra_txt": "con pCR",
+         "ayuda": "Train: tres cohortes (I-SPY2, Duke, I-SPY1), ≈10 cortes por paciente. La separación es siempre por paciente."},
+        {"t": "Test reservado", "v": "176", "d": "Evaluado · vista Test final" if evaluacion_test else "Reservado; aún no evaluado",
+         "ayuda": "Test del paquete congelado. Sus métricas se muestran separadas de las de desarrollo."},
+    ])
 
 seccion("2", "Flujo de predicción")
 pasos([
@@ -69,7 +89,7 @@ seccion("4", "Contenido")
 destinos([
     ("prediccion", "Predicción individual", "Carga de las tres fases o paciente de ejemplo, visor de cortes y bandas de probabilidad."),
     ("red_imagen", "CNN de imagen", "Arquitectura, curvas de entrenamiento y capacidad de discriminación."),
-    ("combinado", "Imagen + clínica", "Fusión tardía evaluada con validación cruzada anidada."),
+    ("combinado", "Imagen + clínica", "Fusión tardía: test final y validación cruzada en vistas separadas."),
     ("metodologia", "Datos y metodología", "Cohortes, separación por paciente, reglas de evaluación y limitaciones."),
 ])
 pie()

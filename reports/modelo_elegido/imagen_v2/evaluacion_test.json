@@ -1,0 +1,36 @@
+{
+  "paquete": "imagen_v2",
+  "pacientes": 176,
+  "pcr": 53,
+  "auc": 0.5519251418929284,
+  "auc_ic95": [
+    0.4598826507132996,
+    0.6458045712532597
+  ],
+  "probabilidades_calibradas": {
+    "auc": 0.5519251418929284,
+    "ap": 0.34638988389731723,
+    "brier": 0.2092822474020144,
+    "bce": 0.6088785143303108
+  },
+  "umbral_congelado": {
+    "umbral": 0.28781074429583536,
+    "TP": 26,
+    "TN": 71,
+    "FP": 52,
+    "FN": 27,
+    "sensibilidad": 0.49056603773584906,
+    "especificidad": 0.5772357723577236,
+    "precision_pcr": 0.3333333333333333,
+    "exactitud": 0.5511363636363636,
+    "f1_pcr": 0.3969465648854962,
+    "macro_f1": 0.51974025076854
+  },
+  "fuente": "Predicciones de imagen de la única ejecución del paquete combinado; sin repetir inferencia.",
+  "sha256_predicciones_fuente": "7d249574fce181e7b0a6756a0c45bded6e1feeec6904a9c96c05eec4a77d574d",
+  "auc_por_cohorte": {
+    "duke": 0.6632996632996633,
+    "spy1": 0.358695652173913,
+    "spy2": 0.5513059701492538
+  }
+}
