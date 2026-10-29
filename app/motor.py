@@ -1,4 +1,4 @@
-"""Lógica de la web sin Streamlit: paquetes, lectura de PNG, predicción, imágenes y recorrido por la red."""
+"""Lógica de inferencia de la web: paquetes, lectura de PNG, predicción, imágenes y recorrido por la red."""
 from __future__ import annotations
 
 import base64

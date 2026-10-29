@@ -1,0 +1,22 @@
+{% if tipo == 'segmentos' %}
+<fieldset class="control segmentos" {% if ocultar %}aria-label="{{ etiqueta }}"{% endif %}>
+  <legend class="etiqueta{% if ocultar %} solo-lector{% endif %}">{{ etiqueta }}</legend>
+  <div class="opciones">{% for valor_opcion, texto in opciones %}
+    <label class="opcion"><input type="radio" name="{{ nombre }}" value="{{ valor_opcion }}" {% if valor == valor_opcion %}checked{% endif %}><span>{{ texto }}</span></label>
+  {% endfor %}</div>
+</fieldset>
+{% elif tipo == 'selector' %}
+<div class="control"><label class="etiqueta" for="{{ ident }}">{{ etiqueta }}</label>
+<select id="{{ ident }}" name="{{ nombre }}">{% for valor_opcion, texto in opciones %}<option value="{{ valor_opcion }}" {% if valor == valor_opcion %}selected{% endif %}>{{ texto }}</option>{% endfor %}</select></div>
+{% elif tipo == 'rango' %}
+<div class="control rango"><label class="etiqueta" for="{{ ident }}">{{ etiqueta }}</label>
+<output for="{{ ident }}">{{ opciones[indice][1] }}</output>
+<input id="{{ ident }}" type="range" min="0" max="{{ opciones|length - 1 }}" step="1" value="{{ indice }}" data-opciones='{{ opciones|tojson }}' aria-valuetext="{{ opciones[indice][1] }}">
+<input type="hidden" name="{{ nombre }}" value="{{ valor }}"><div class="extremos"><span>{{ opciones[0][1] }}</span><span>{{ opciones[-1][1] }}</span></div></div>
+{% elif tipo == 'interruptor' %}
+<div class="control"><input type="hidden" name="{{ nombre }}" value="{{ '1' if valor else '0' }}"><label class="switch"><input id="{{ ident }}" type="checkbox" data-interruptor="{{ nombre }}" {% if valor %}checked{% endif %}><span class="palanca"></span><span>{{ etiqueta }}</span></label></div>
+{% elif tipo == 'numero' %}
+<div class="control"><label class="etiqueta" for="{{ ident }}">{{ etiqueta }}</label><input id="{{ ident }}" type="number" name="{{ nombre }}" value="{{ valor }}" min="{{ minimo }}" max="{{ maximo }}" step="any" {% if desactivado %}disabled{% endif %}>{% if ayuda %}<small>{{ ayuda }}</small>{% endif %}</div>
+{% elif tipo == 'archivos' %}
+<div class="control subida"><label for="{{ ident }}"><strong>{{ etiqueta }}</strong><span>Arrastra los PNG aquí o selecciona los archivos</span></label><input id="{{ ident }}" type="file" name="archivos" accept="image/png,.png" multiple><small>PRE, EARLY y LATE · 256 × 256 · máximo 32 cortes / 48 MB{% if cantidad %} · {{ cantidad }} archivos seleccionados{% endif %}</small></div>
+{% endif %}

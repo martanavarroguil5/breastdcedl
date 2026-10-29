@@ -4,6 +4,7 @@ Ejecutar desde la raíz del repositorio con `.venv/bin/python scripts/<archivo>.
 
 | Archivo | Función | Datos que utiliza |
 |---|---|---|
+| [servir_panel.py](servir_panel.py) | Inicia el panel HTML y su servidor de inferencia | Pesos congelados, recursos agregados y PNG de entrada |
 | [entrenar.py](entrenar.py) | Entrada a la CLI de entrenamiento, inferencia y evaluación; consultar `--help` | Depende del subcomando explícito |
 | [verificar_modelos.py](verificar_modelos.py) | Comprueba los paquetes y la inferencia de los pesos existentes | Paquetes finales y comprobaciones de inferencia |
 | [exportar_curvas_cnn.py](exportar_curvas_cnn.py) | Actualiza las curvas de la CNN en el panel | Historiales guardados de train |

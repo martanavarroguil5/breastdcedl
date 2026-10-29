@@ -2,13 +2,12 @@
 import json
 
 import pandas as pd
-import streamlit as st
 
-from componentes import (ACERO, COBRE, COHORTES, aviso, cabecera, calibracion, grafica,
+from .componentes import (ACERO, COBRE, COHORTES, aviso, cabecera, calibracion, grafica,
                          matriz, num, pct, pr, roc, seccion, tabla, tarjetas)
 
 
-def mostrar_test(informe: dict, modelo: str = "fusion") -> None:
+def mostrar_test(pagina, informe: dict, modelo: str = "fusion") -> None:
     m = informe["modelos"][modelo]
     c = m["clasificacion"]
     fecha = "/".join(reversed(informe["fecha"].split("-")))
@@ -30,7 +29,7 @@ def mostrar_test(informe: dict, modelo: str = "fusion") -> None:
     ])
     seccion("1", "Errores con la política congelada",
             "Positivo significa respuesta patológica completa (pCR). El umbral se eligió en desarrollo y se conserva aquí.")
-    izquierda, derecha = st.columns(2, gap="large")
+    izquierda, derecha = pagina.columnas(2, gap="large")
     with izquierda:
         grafica(matriz(c))
     with derecha:
@@ -44,12 +43,12 @@ def mostrar_test(informe: dict, modelo: str = "fusion") -> None:
             {"Métrica": "Macro-F1", "Test": num(c["macro_f1"])},
         ]))
     if modelo == "fusion":
-        with st.expander("Datos disponibles y umbrales aplicados"):
+        with pagina.desplegable("Datos disponibles y umbrales aplicados"):
             tabla(pd.DataFrame([{"Submodelo": f["submodelo"], "Pacientes": f["n"], "Umbral guardado": num(f["umbral"], 6)}
                                 for f in informe["umbrales_aplicados"]]))
-            st.caption("Se utiliza el patrón de variables disponibles, sin imputación y sin buscar un umbral en test.")
+            pagina.texto_auxiliar("Se utiliza el patrón de variables disponibles, sin imputación y sin buscar un umbral en tepagina.")
     seccion("2", "Discriminación y probabilidades")
-    izquierda, derecha = st.columns(2, gap="large")
+    izquierda, derecha = pagina.columnas(2, gap="large")
     with izquierda:
         grafica(roc({v["nombre"]: v["roc"] for v in informe["modelos"].values()},
                     {"Imagen + clínica": COBRE, "CNN de imagen": ACERO}, "ROC · mismas pacientes de test"))
@@ -60,9 +59,9 @@ def mostrar_test(informe: dict, modelo: str = "fusion") -> None:
         {"t": "Brier", "v": num(m["brier"]), "d": "Error de las probabilidades; menor es mejor"},
         {"t": "Pérdida · BCE", "v": num(m["bce"]), "d": "Calculada en test, sin recalibración"},
     ])
-    with st.expander("Calibración observada en test"):
+    with pagina.desplegable("Calibración observada en test"):
         grafica(calibracion(m["calibracion"], intervalos_fijos=True))
-        st.caption("Intervalos fijos de probabilidad de anchura 0,1; se omiten los vacíos. El tamaño de cada grupo "
+        pagina.texto_auxiliar("Intervalos fijos de probabilidad de anchura 0,1; se omiten los vacíos. El tamaño de cada grupo "
                    "aparece al pasar el cursor. Es un diagnóstico descriptivo; no se ha reajustado la calibración.")
     seccion("3", "Comparación en el mismo test")
     tabla(pd.DataFrame([
@@ -72,10 +71,10 @@ def mostrar_test(informe: dict, modelo: str = "fusion") -> None:
         for v in informe["modelos"].values()
     ]))
     d = informe["diferencia_auc"]
-    st.caption(f"Combinado − CNN: ΔAUC {d['delta']:+.3f}; IC95 % [{d['ic95'][0]:+.3f}; {d['ic95'][1]:+.3f}]. "
+    pagina.texto_auxiliar(f"Combinado − CNN: ΔAUC {d['delta']:+.3f}; IC95 % [{d['ic95'][0]:+.3f}; {d['ic95'][1]:+.3f}]. "
                "Bootstrap pareado sobre las mismas pacientes. Los errores usan la política propia guardada de cada modelo.")
     aviso("Esta comparación mide el combinado frente a la CNN sola. No demuestra que la imagen mejore a la clínica "
-          "sola: ese contraste no forma parte de esta evaluación de test.", "info")
+          "sola: ese contraste no forma parte de esta evaluación de tepagina.", "info")
     seccion("4", "Resultados por cohorte", "Subgrupos pequeños: las diferencias son descriptivas y no se usan para cambiar el modelo.")
     tabla(pd.DataFrame([
         {"Cohorte": COHORTES.get(f["cohorte"], f["cohorte"]), "Pacientes": f["n"], "pCR": f["pcr"],
@@ -86,8 +85,8 @@ def mostrar_test(informe: dict, modelo: str = "fusion") -> None:
     ]))
     seccion("5", "Alcance del cierre")
     aviso(informe["limite"] + " La validación privada sigue pendiente. Los pesos, coeficientes, calibración y "
-          "umbrales se mantienen como estaban antes de abrir este test.", "atencion")
-    st.caption("La validación cruzada se conserva en la otra vista. Su AUC media entre folds y su DE no son "
+          "umbrales se mantienen como estaban antes de abrir este tepagina.", "atencion")
+    pagina.texto_auxiliar("La validación cruzada se conserva en la otra vista. Su AUC media entre folds y su DE no son "
                "la misma estimación que la AUC de este test y su IC95 %.")
-    st.download_button("Descargar informe de test · JSON", json.dumps(informe, ensure_ascii=False, indent=2),
-                       file_name="evaluacion_test.json", mime="application/json", key=f"descarga_test_{modelo}")
+    pagina.descarga("Descargar informe de test · JSON", json.dumps(informe, ensure_ascii=False, indent=2),
+                       file_name="evaluacion_tepagina.json", mime="application/json", key=f"descarga_test_{modelo}")

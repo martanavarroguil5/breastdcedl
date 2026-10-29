@@ -1,0 +1,83 @@
+
+<link rel="stylesheet" href="__FUENTES__">
+<div id="v">
+  <div id="vp">
+    <img id="im0" alt=""><img id="im1" alt="">
+    <svg id="vent" viewBox="0 0 256 256" preserveAspectRatio="none"></svg>
+    <div class="esq tl" id="tl"></div><div class="esq tr" id="tr"></div>
+    <div class="esq bl">256 × 256 · 8 bit<br>rueda o ↑↓: cambiar corte</div><div class="esq br" id="br"></div>
+  </div>
+  <div id="panel">
+    <div class="et">Fase</div>
+    <div class="seg" id="fases"><button data-f="PRE">PRE</button><button data-f="EARLY" class="on">EARLY</button><button data-f="LATE">LATE</button></div>
+    <div class="et">Realce EARLY − PRE <b id="opv">55 %</b></div>
+    <input type="range" id="op" min="0" max="100" value="55">
+    <label class="chk"><input type="checkbox" id="chv" checked><span></span>Ventanas que mira la red</label>
+    <div class="et" style="margin-top:14px">Cortes <b>p calibrada por corte</b></div>
+    <div id="tira"></div>
+  </div>
+</div>
+<style>
+:root{--l:#1d252f;--l2:#2a3440;--t:#ece8df;--t2:#a9afb7;--te:#6b7480;--r:#c97753}
+html,body{margin:0;background:transparent;color:var(--t);font-family:Geist,system-ui,sans-serif}
+#v{display:grid;grid-template-columns:minmax(0,__LADO__px) minmax(250px,1fr);gap:18px;height:__ALTO__px}
+#vp{position:relative;aspect-ratio:1;max-height:__ALTO__px;background:#000;border:1px solid var(--l2);overflow:hidden;cursor:ns-resize}
+#vp img{position:absolute;inset:0;width:100%;height:100%;image-rendering:auto;user-select:none;-webkit-user-drag:none}
+#im1{transition:opacity .15s}
+#vent{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#vent rect{fill:none;stroke-width:.7;vector-effect:non-scaling-stroke}
+#vent text{font:500 6px 'Geist Mono',monospace;letter-spacing:.5px}
+.esq{position:absolute;font:400 10.5px/1.5 'Geist Mono',monospace;letter-spacing:.06em;color:rgba(236,232,223,.78);text-shadow:0 1px 2px #000;text-transform:uppercase;pointer-events:none}
+.tl{top:9px;left:11px}.tr{top:9px;right:11px;text-align:right}.bl{bottom:9px;left:11px;color:rgba(236,232,223,.5)}.br{bottom:9px;right:11px;text-align:right}
+.esq .o{color:var(--r)}
+#panel{display:flex;flex-direction:column;min-height:0}
+.et{font:500 10px 'Geist Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--te);margin:0 0 8px;display:flex;justify-content:space-between}
+.et b{font-weight:500;color:var(--t2);letter-spacing:.04em;text-transform:none}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--l2);margin-bottom:16px}
+.seg button{font:500 11px 'Geist Mono',monospace;letter-spacing:.1em;background:transparent;color:var(--t2);border:0;padding:8px 0;cursor:pointer}
+.seg button+button{border-left:1px solid var(--l2)}
+.seg button.on{background:var(--t);color:#0b0e12}
+input[type=range]{width:100%;accent-color:var(--r);margin:0 0 14px}
+.chk{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--t2);cursor:pointer;user-select:none}
+.chk input{display:none}.chk span{width:28px;height:15px;border-radius:9px;background:var(--l2);position:relative;transition:.2s}
+.chk span::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:var(--t2);transition:.2s}
+.chk input:checked+span{background:var(--r)}.chk input:checked+span::after{left:15px;background:#0b0e12}
+#tira{flex:1;overflow-y:auto;position:relative;border-top:1px solid var(--l);scrollbar-width:thin;scrollbar-color:var(--l2) transparent}
+.f{display:grid;grid-template-columns:38px 54px 1fr 46px;gap:10px;align-items:center;padding:6px 6px 6px 0;border-bottom:1px solid var(--l);cursor:pointer;transition:background .15s}
+.f:hover{background:rgba(236,232,223,.03)}
+.f.on{background:rgba(201,119,83,.08);box-shadow:inset 2px 0 0 var(--r)}
+.f img{width:38px;height:38px;display:block;border:1px solid var(--l2)}
+.f .n{font:400 11px 'Geist Mono',monospace;color:var(--t2)}
+.f .b{height:4px;background:var(--l);position:relative}
+.f .b i{position:absolute;left:0;top:0;bottom:0;background:var(--r);opacity:.85}
+.f .p{font:500 11.5px 'Geist Mono',monospace;text-align:right;color:var(--t)}
+</style>
+<script>
+const C=__CORTES__,M=__META__;
+let i=__INICIAL__,fase='EARLY';
+const im0=document.getElementById('im0'),im1=document.getElementById('im1'),op=document.getElementById('op'),vp=document.getElementById('vp');
+const tira=document.getElementById('tira'),pmax=Math.max(.6,...C.map(c=>c.p));
+const pc=v=>(100*v).toFixed(1).replace('.',',')+' %';
+const textoHTML=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const vent=document.getElementById('vent');
+[[256,'#a9afb7','256'],[128,'#a9afb7','128'],[64,'#c97753','64']].forEach(([s,c,t])=>{const o=(256-s)/2;
+  vent.insertAdjacentHTML('beforeend',`<rect x="${o+.5}" y="${o+.5}" width="${s-1}" height="${s-1}" stroke="${c}" stroke-dasharray="${s===256?'0':'3 2'}" opacity="${s===256?0:.85}"/><text x="${o+3}" y="${o+8}" fill="${c}">${t===`256`?'':t+' px'}</text>`);});
+C.forEach((c,k)=>{const f=document.createElement('div');f.className='f';
+  f.innerHTML=`<img src="${c.EARLY}"><span class="n">${textoHTML(c.nombre)}</span><span class="b"><i style="width:${(100*c.p/pmax).toFixed(1)}%"></i></span><span class="p">${pc(c.p)}</span>`;
+  f.addEventListener('click',()=>ir(k));tira.appendChild(f);});
+function pintar(){const c=C[i];im0.src=c[fase];im1.src=c.REALCE;im1.style.opacity=op.value/100;im0.style.filter=`brightness(${(1-.4*op.value/100).toFixed(2)})`;
+  document.getElementById('opv').textContent=op.value+' %';
+  document.getElementById('tl').innerHTML=`${textoHTML(M.titulo)}<br>corte ${textoHTML(c.nombre)} · ${i+1}/${C.length}`;
+  document.getElementById('tr').innerHTML=`fase ${fase}<br><span class="o">realce ${op.value} %</span>`;
+  document.getElementById('br').innerHTML=`p corte<br><span class="o">${pc(c.p)}</span>`;
+  [...tira.children].forEach((f,k)=>f.classList.toggle('on',k===i));}
+function ir(k){i=Math.max(0,Math.min(C.length-1,k));pintar();const f=tira.children[i];
+  if(f.offsetTop<tira.scrollTop||f.offsetTop+f.offsetHeight>tira.scrollTop+tira.clientHeight)tira.scrollTop=f.offsetTop-tira.clientHeight/2;}
+document.querySelectorAll('#fases button').forEach(b=>b.addEventListener('click',()=>{fase=b.dataset.f;
+  document.querySelectorAll('#fases button').forEach(o=>o.classList.toggle('on',o===b));pintar();}));
+op.addEventListener('input',pintar);
+document.getElementById('chv').addEventListener('change',e=>vent.style.display=e.target.checked?'':'none');
+vp.addEventListener('wheel',e=>{e.preventDefault();ir(i+(e.deltaY>0?1:-1));},{passive:false});
+document.addEventListener('keydown',e=>{if(e.key==='ArrowDown')ir(i+1);if(e.key==='ArrowUp')ir(i-1);});
+ir(i);
+</script>

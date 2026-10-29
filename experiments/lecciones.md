@@ -312,7 +312,7 @@ ningún dato clínico se usa el paquete de imagen tal cual.
 
 ## 9. Web
 
-`app/` es una web Streamlit con cinco páginas: inicio, predicción, CNN de
+`app/` es una web HTML con un servidor Python y cinco páginas: inicio, predicción, CNN de
 imagen, imagen + clínica y metodología. Lee los paquetes congelados y los
 resúmenes de `app/recursos/*.json`, que genera `python -m training
 recursos-app` a partir de `runs/` (solo train) y se versionan. La predicción

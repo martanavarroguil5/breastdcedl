@@ -1,0 +1,150 @@
+
+<link rel="stylesheet" href="__FUENTES__">
+<div id="b3">
+  <div id="lienzo"></div>
+  <div id="tip"></div>
+  <div id="aviso">No se pudo cargar three.js (requiere conexión a internet).</div>
+  <div id="barra">
+    <div class="ley">Arrastra para girar · clic y rueda para acercar · pasa el ratón por un bloque</div>
+    <div class="ctl"><button data-c="iso" class="on">Perspectiva</button><button data-c="lado">Lateral</button>
+      <button data-c="arriba">Superior</button><button id="giro">Girar</button></div>
+  </div>
+</div>
+<style>
+:root{--l:#1d252f;--l2:#2a3440;--t:#ece8df;--t2:#a9afb7;--te:#6b7480;--r:#c97753}
+html,body{margin:0;background:transparent;color:var(--t);font-family:Geist,system-ui,sans-serif;overflow:hidden}
+#b3{position:relative;height:__ALTO__px;border:1px solid var(--l);border-radius:2px;overflow:hidden;
+  background:radial-gradient(80% 90% at 50% 40%,#131920 0%,#0b0e12 80%)}
+#lienzo{position:absolute;inset:0 0 40px 0;cursor:grab}
+#lienzo:active{cursor:grabbing}
+#tip{position:absolute;z-index:5;pointer-events:none;max-width:290px;padding:11px 13px;background:rgba(11,14,18,.96);
+  border:1px solid var(--l2);box-shadow:0 18px 40px rgba(0,0,0,.55);opacity:0;transition:opacity .12s;font-size:12px;line-height:1.5;color:var(--t2)}
+#tip b{display:block;color:var(--t);font-weight:500;font-size:13px;margin-bottom:2px}
+#tip .f{font-family:'Geist Mono',monospace;font-size:11px;color:var(--r);margin-bottom:5px}
+#tip .p{font-family:'Geist Mono',monospace;font-size:11px;color:var(--te);margin-top:6px}
+#aviso{display:none;position:absolute;inset:0;place-items:center;color:var(--te);font:400 12px 'Geist Mono',monospace}
+#barra{position:absolute;left:0;right:0;bottom:0;height:40px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;
+  border-top:1px solid var(--l);background:rgba(11,14,18,.8);font:400 10.5px 'Geist Mono',monospace;color:var(--te);letter-spacing:.04em}
+.ctl{display:flex;gap:4px}
+button{font:500 10.5px 'Geist Mono',monospace;color:var(--t2);background:transparent;border:1px solid var(--l2);padding:5px 9px;cursor:pointer;border-radius:2px}
+button:hover{border-color:var(--t2);color:var(--t)}
+button.on{background:var(--t);color:#0b0e12;border-color:var(--t)}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const CAPAS=__DATOS__;
+const raiz=document.getElementById('b3'),zona=document.getElementById('lienzo'),tip=document.getElementById('tip');
+if(typeof THREE==='undefined'||!THREE.OrbitControls){document.getElementById('aviso').style.display='grid';}
+else document.fonts.ready.then(iniciar);
+function iniciar(){
+const COBRE=0xc97753,ACERO=0x5a9ec4,TINTA=0xece8df,GRIS=0x6b7480;
+const reducido=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const escena=new THREE.Scene();escena.fog=new THREE.Fog(0x0b0e12,420,900);
+const camara=new THREE.PerspectiveCamera(32,1,1,3000);
+const rend=new THREE.WebGLRenderer({antialias:true,alpha:true});rend.setPixelRatio(Math.min(2,devicePixelRatio));
+zona.appendChild(rend.domElement);
+const ctl=new THREE.OrbitControls(camara,rend.domElement);ctl.enableDamping=true;ctl.dampingFactor=.08;
+ctl.minDistance=120;ctl.maxDistance=900;ctl.autoRotateSpeed=.6;ctl.enableZoom=false;
+// La rueda solo acerca tras hacer clic en la escena, para no secuestrar el scroll de la página.
+rend.domElement.addEventListener('pointerdown',()=>{ctl.enableZoom=true;});
+rend.domElement.addEventListener('pointerleave',()=>{ctl.enableZoom=false;});
+escena.add(new THREE.AmbientLight(0xffffff,.75));const sol=new THREE.DirectionalLight(0xffffff,.55);sol.position.set(-120,220,180);escena.add(sol);
+const lado=s=>16+9*Math.log2(s/8),fondo=c=>3+2.3*Math.sqrt(c),HUECO=30;
+const cargador=new THREE.TextureLoader(),selec=[],conos=[];let x=0;
+function rotulo(t1,t2){const c=document.createElement('canvas');c.width=640;c.height=150;const g=c.getContext('2d');
+  g.textAlign='center';g.fillStyle='#ece8df';g.font='500 46px Geist, sans-serif';g.fillText(t1,320,60);
+  g.fillStyle='#8d949d';g.font='34px "Geist Mono", monospace';g.fillText(t2,320,118);
+  const tx=new THREE.CanvasTexture(c);tx.minFilter=THREE.LinearFilter;
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthWrite:false}));sp.scale.set(52,12.2,1);return sp;}
+function caja(w,h,d,cx,cy){const g=new THREE.BoxGeometry(w,h,d);
+  const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x9aa3ad,transparent:true,opacity:.05,depthWrite:false,roughness:.9}));
+  const b=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:GRIS,transparent:true,opacity:.65}));
+  m.position.set(cx,cy||0,0);b.position.copy(m.position);escena.add(m,b);return [m,b];}
+const geo=[];
+CAPAS.forEach((c,i)=>{
+  let info;
+  if(c.tipo==='mapas'){
+    const L=lado(c.lado),D=fondo(c.canales),n=c.imgs.length;
+    const [m,b]=caja(D,L,L,x+D/2);
+    c.imgs.forEach((u,k)=>{const t=cargador.load(u);t.minFilter=THREE.LinearFilter;t.generateMipmaps=false;
+      if(c.pixelado)t.magFilter=THREE.NearestFilter;
+      const pl=new THREE.Mesh(new THREE.PlaneGeometry(L*.94,L*.94),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide,transparent:true,opacity:.96}));
+      pl.rotation.y=-Math.PI/2;pl.position.set(x+(n===1?D/2:D*(.08+.84*k/(n-1))),0,0);escena.add(pl);});
+    info={m,b,x0:x,x1:x+D,L};x+=D;
+  }else if(c.tipo==='barra'){
+    const n=c.valores.length,h=4.2,L=n*h;const [m,b]=caja(5,L+4,5,x+2.5);
+    c.valores.forEach((v,k)=>{const q=new THREE.Mesh(new THREE.BoxGeometry(3.4,h*.78,3.4),
+      new THREE.MeshStandardMaterial({color:TINTA,transparent:true,opacity:.15+.85*v,roughness:.7}));
+      q.position.set(x+2.5,L/2-h/2-k*h,0);escena.add(q);});
+    info={m,b,x0:x,x1:x+5,L};x+=5;
+  }else if(c.tipo==='neuronas'){
+    const n=c.valores.length,h=5.2,L=n*h;const [m,b]=caja(6,L+4,6,x+3);
+    c.valores.forEach((v,k)=>{const col=c.signos[k]>0?COBRE:(c.signos[k]<0?ACERO:TINTA);
+      const e=new THREE.Mesh(new THREE.SphereGeometry(1.9,18,12),new THREE.MeshStandardMaterial({color:col,transparent:true,opacity:.25+.75*v,roughness:.5}));
+      e.position.set(x+3,L/2-h/2-k*h,0);escena.add(e);});
+    info={m,b,x0:x,x1:x+6,L};x+=6;
+  }else{
+    const r=7,e=new THREE.Mesh(new THREE.SphereGeometry(r,32,20),new THREE.MeshStandardMaterial({color:COBRE,roughness:.45,metalness:.1,
+      emissive:COBRE,emissiveIntensity:.15+.5*c.p}));
+    e.position.set(x+r,0,0);escena.add(e);
+    const b=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(2*r+3,2*r+3,2*r+3)),new THREE.LineBasicMaterial({color:GRIS,transparent:true,opacity:0}));
+    b.position.copy(e.position);escena.add(b);
+    const t=rotulo(Math.round(100*c.p)+' %','p del corte');t.position.set(x+r,-r-9,0);escena.add(t);
+    info={m:e,b,x0:x,x1:x+2*r,L:2*r};x+=2*r;
+  }
+  info.m.userData.i=i;selec.push(info.m);geo.push(info);
+  const r=rotulo(c.nombre,c.forma.replace(/ × /g,'×'));r.position.set((info.x0+info.x1)/2,info.L/2+14,0);escena.add(r);
+  x+=HUECO;
+});
+const total=x-HUECO,cx=total/2;escena.position.x=-cx;
+const rejilla=new THREE.GridHelper(Math.max(600,total*1.6),40,0x1d252f,0x141a20);rejilla.position.set(cx,-62,0);escena.add(rejilla);
+// Conos de convolución entre bloques y abanicos hacia las capas densas.
+const matCono=new THREE.LineBasicMaterial({color:COBRE,transparent:true,opacity:.55});
+for(let i=0;i<geo.length-1;i++){
+  const a=geo[i],b=geo[i+1];
+  if(CAPAS[i].tipo==='mapas'&&CAPAS[i+1].tipo==='mapas'){
+    const q=a.L*.13,oy=a.L*(.18*Math.sin(i*1.7)),oz=a.L*(.16*Math.cos(i*2.3)),ax=a.x1,bx=b.x0;
+    const p=[[ax,oy-q,oz-q],[ax,oy+q,oz-q],[ax,oy+q,oz+q],[ax,oy-q,oz+q]],v=[bx,oy*b.L/a.L*.7,oz*b.L/a.L*.7];
+    const pts=[];p.forEach((u,k)=>{pts.push(...u,...v);const w=p[(k+1)%4];pts.push(...u,...w);});
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+    escena.add(new THREE.LineSegments(g,matCono));
+    const pulso=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:COBRE,transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false}));
+    pulso.rotation.y=-Math.PI/2;escena.add(pulso);conos.push({pulso,ax,bx,oy,oz,v,q,fase:i*.37});
+  }else{
+    const pts=[],n=CAPAS[i+1].tipo==='salida'?1:6;
+    for(let k=0;k<n;k++){const ya=(k/(Math.max(1,n-1))-.5)*a.L*.8,yb=n===1?0:(k/(n-1)-.5)*b.L*.8;
+      for(let j=0;j<3;j++){const y0=(j/2-.5)*a.L*.8;pts.push(a.x1,y0,0,b.x0,yb,0);}}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+    escena.add(new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:TINTA,transparent:true,opacity:.12})));
+  }
+}
+const VISTAS={iso:[-0.14*total,0.22*total,0.86*total],lado:[0,8,0.92*total],arriba:[0,0.95*total,30]};
+let destino=null;
+function vista(k){destino=new THREE.Vector3(...VISTAS[k]);document.querySelectorAll('button[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c===k));}
+document.querySelectorAll('button[data-c]').forEach(b=>b.addEventListener('click',()=>vista(b.dataset.c)));
+const giro=document.getElementById('giro');giro.addEventListener('click',()=>{ctl.autoRotate=!ctl.autoRotate;giro.classList.toggle('on',ctl.autoRotate);});
+camara.position.set(-0.55*total,0.3*total,0.85*total);vista('iso');if(reducido)camara.position.copy(destino);
+ctl.addEventListener('start',()=>{destino=null;});
+function medir(){const w=zona.clientWidth,h=zona.clientHeight;rend.setSize(w,h);camara.aspect=w/h;camara.updateProjectionMatrix();}
+new ResizeObserver(medir).observe(zona);medir();
+const ray=new THREE.Raycaster(),ptr=new THREE.Vector2();let foco=null;
+rend.domElement.addEventListener('pointermove',e=>{const r=rend.domElement.getBoundingClientRect();
+  ptr.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(ptr,camara);
+  const h=ray.intersectObjects(selec)[0];const i=h?h.object.userData.i:null;
+  if(foco!==null&&foco!==i){geo[foco].b.material.color.setHex(GRIS);geo[foco].b.material.opacity=CAPAS[foco].tipo==='salida'?0:.65;}
+  foco=i;if(i===null){tip.style.opacity=0;return;}
+  geo[i].b.material.color.setHex(COBRE);geo[i].b.material.opacity=1;const c=CAPAS[i];
+  tip.innerHTML=`<b>${c.nombre}</b><div class="f">${c.forma}</div>${c.detalle}${c.params?`<div class="p">Parámetros: ${c.params}</div>`:''}${c.mostrados?`<div class="p">Se muestran ${c.mostrados} mapas reales del corte</div>`:''}`;
+  const w=tip.offsetWidth,hh=tip.offsetHeight;let tx=e.clientX-r.left+16;if(tx+w>r.width-8)tx=e.clientX-r.left-16-w;
+  tip.style.left=tx+'px';tip.style.top=Math.max(8,Math.min(r.height-hh-8,e.clientY-r.top-hh/2))+'px';tip.style.opacity=1;});
+rend.domElement.addEventListener('pointerleave',()=>{tip.style.opacity=0;});
+let visible=true;new IntersectionObserver(es=>es.forEach(e=>visible=e.isIntersecting)).observe(raiz);
+const reloj=new THREE.Clock();
+(function bucle(){requestAnimationFrame(bucle);if(!visible)return;const t=reloj.getElapsedTime();
+  if(destino){camara.position.lerp(destino,.06);if(camara.position.distanceTo(destino)<1)destino=null;}
+  if(!reducido)conos.forEach(c=>{const u=((t*.45+c.fase)%1),s=c.q*2*(1-u)+.6;
+    c.pulso.position.set(c.ax+(c.bx-c.ax)*u,c.oy+(c.v[1]-c.oy)*u,c.oz+(c.v[2]-c.oz)*u);c.pulso.scale.set(s,s,1);c.pulso.material.opacity=.4*(1-u);});
+  ctl.update();rend.render(escena,camara);})();
+}
+</script>

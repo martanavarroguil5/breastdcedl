@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Panel académico de predicción de respuesta patológica completa con resonancia DCE y datos clínicos.">
+  <title>{{ titulo }} · RedDCE · pCR</title>
+  <link rel="icon" href="/recursos/icono.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/panel.css">
+  <link rel="stylesheet" href="/static/css/web.css">
+  <script defer src="/static/vendor/vega.min.js"></script>
+  <script defer src="/static/vendor/vega-lite.min.js"></script>
+  <script defer src="/static/vendor/vega-embed.min.js"></script>
+  <script defer src="/static/js/panel.js"></script>
+</head>
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="cabecera-app">
+    <a class="marca" href="/" aria-label="RedDCE · pCR · Inicio"><img src="/recursos/logo.svg" alt="RedDCE · pCR" width="236" height="40"></a>
+    <nav aria-label="Navegación principal">{% for ruta, nombre in navegacion %}<a href="{{ '/' if ruta == 'resumen' else '/' + ruta }}" {% if ruta == activa %}aria-current="page"{% endif %}>{{ nombre }}</a>{% endfor %}</nav>
+  </header>
+  <div id="estado-peticion" role="status" aria-live="polite" hidden>Actualizando…</div>
+  <main class="contenedor" id="contenido">
+    <form id="panel-form" method="post" enctype="multipart/form-data" action="{{ request.path }}">
+      {{ contenido }}
+      <noscript><p class="nota">Puedes actualizar los controles con este botón. Las gráficas y los visores requieren JavaScript.</p><button class="boton" type="submit">Actualizar panel</button></noscript>
+    </form>
+  </main>
+</body>
+</html>

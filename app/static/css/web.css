@@ -1,0 +1,426 @@
+*{
+  box-sizing:border-box}
+  html{
+    color-scheme:dark;
+    scroll-padding-top:85px}
+    body{
+      margin:0;
+      color:var(--tinta);
+      font:400 16px/1.6 var(--sans);
+      background:#0b0e12}
+      a{
+        color:inherit}
+        button,input,select{
+          font:inherit}
+          button,a,input,select,summary{
+            -webkit-tap-highlight-color:transparent}
+            :focus-visible{
+              outline:2px solid var(--realce);
+              outline-offset:4px}
+              button{
+                cursor:pointer}
+                p{
+                  margin:.5rem 0 1rem}
+                  h3{
+                    font-weight:500;
+                    font-size:1.3rem;
+                    margin:1.5rem 0 .5rem}
+                    .contenedor{
+                      width:100%;
+                      margin:0 auto;
+                      padding-left:32px;
+                      padding-right:32px}
+                      form{
+                        margin:0}
+                        .cabecera-app{
+                          position:fixed;
+                          top:0;
+                          left:0;
+                          right:0;
+                          z-index:50;
+                          display:flex;
+                          align-items:center;
+                          min-height:64px;
+                          padding:10px 28px;
+                          gap:35px}
+                          .marca{
+                            display:flex;
+                            flex-shrink:0}
+                            .marca img{
+                              width:212px;
+                              height:36px;
+                              object-fit:contain}
+                              .cabecera-app nav{
+                                display:flex;
+                                gap:5px;
+                                align-items:center;
+                                flex-wrap:wrap}
+                                .cabecera-app nav a{
+                                  font-size:14px;
+                                  font-weight:500;
+                                  text-decoration:none;
+                                  color:var(--tinta2);
+                                  padding:7px 13px;
+                                  border-radius:6px;
+                                  transition:background .15s,color .15s}
+                                  .cabecera-app nav a:hover{
+                                    background:#20252d;
+                                    color:var(--tinta)}
+                                    .cabecera-app nav a[aria-current]{
+                                      background:#252c35;
+                                      color:var(--tinta)}
+                                      .columnas{
+                                        display:grid;
+                                        grid-template-columns:var(--columnas);
+                                        gap:24px;
+                                        margin:.7rem 0}
+                                        .columnas.large{
+                                          gap:40px}
+                                          .columna{
+                                            min-width:0}
+                                            .grupo{
+                                              margin:.8rem 0 1.4rem}
+                                              .grupo.borde{
+                                                padding:18px;
+                                                border:1px solid var(--linea);
+                                                border-radius:5px;
+                                                background:var(--panel)}
+                                                .texto-auxiliar{
+                                                  font-size:.875rem;
+                                                  line-height:1.6;
+                                                  margin:.6rem 0 1rem}
+                                                  .desplegable{
+                                                    margin:.8rem 0}
+                                                    .desplegable summary{
+                                                      padding:13px 17px;
+                                                      cursor:pointer;
+                                                      font-size:.95rem}
+                                                      .detalle{
+                                                        padding:6px 18px 18px}
+                                                        .tabla-scroll{
+                                                          overflow:auto;
+                                                          width:100%;
+                                                          margin:.5rem 0 1rem}
+                                                          .lista{
+                                                            padding-left:1.5rem;
+                                                            line-height:1.75;
+                                                            color:var(--tinta2)}
+                                                            .lista li{
+                                                              margin-bottom:.6rem}
+                                                              .lista strong{
+                                                                color:var(--tinta)}
+                                                                .control{
+                                                                  border:0;
+                                                                  padding:0;
+                                                                  min-width:0;
+                                                                  margin:.7rem 0 1rem}
+                                                                  .etiqueta{
+                                                                    display:block;
+                                                                    margin-bottom:8px;
+                                                                    font-size:12px;
+                                                                    line-height:1.5}
+                                                                    .opciones{
+                                                                      display:flex;
+                                                                      flex-wrap:wrap;
+                                                                      gap:5px}
+                                                                      .opcion{
+                                                                        position:relative;
+                                                                        display:inline-flex;
+                                                                        cursor:pointer}
+                                                                        .opcion input{
+                                                                          position:absolute;
+                                                                          opacity:0;
+                                                                          width:1px;
+                                                                          height:1px}
+                                                                          .opcion span{
+                                                                            border:1px solid #3b424e;
+                                                                            border-radius:7px;
+                                                                            padding:5px 12px;
+                                                                            font-size:14px;
+                                                                            line-height:1.5;
+                                                                            background:#11161e;
+                                                                            color:var(--tinta2);
+                                                                            transition:all .15s}
+                                                                            .opcion:hover span{
+                                                                              border-color:#747e8d;
+                                                                              color:var(--tinta)}
+                                                                              .opcion input:checked+span{
+                                                                                background:rgba(201,119,83,.15);
+                                                                                color:#e8ab8b;
+                                                                                border-color:var(--realce)}
+                                                                                .opcion input:focus-visible+span{
+                                                                                  outline:2px solid var(--realce);
+                                                                                  outline-offset:3px}
+                                                                                  select,input[type=number]{
+                                                                                    display:block;
+                                                                                    width:100%;
+                                                                                    background:#171d26;
+                                                                                    color:var(--tinta);
+                                                                                    border:1px solid #343c49;
+                                                                                    border-radius:7px;
+                                                                                    padding:9px 12px;
+                                                                                    min-height:41px}
+                                                                                    select{
+                                                                                      cursor:pointer}
+                                                                                      select:hover,input[type=number]:hover{
+                                                                                        border-color:#737e8e}
+                                                                                        input:disabled{
+                                                                                          opacity:.45;
+                                                                                          cursor:not-allowed}
+                                                                                          .control small{
+                                                                                            display:block;
+                                                                                            color:var(--tenue);
+                                                                                            font-size:.75rem;
+                                                                                            margin-top:5px}
+                                                                                            .rango output{
+                                                                                              display:block;
+                                                                                              color:var(--realce);
+                                                                                              font:500 12px var(--mono);
+                                                                                              margin-bottom:6px}
+                                                                                              .rango input[type=range]{
+                                                                                                width:100%;
+                                                                                                accent-color:var(--realce);
+                                                                                                height:16px;
+                                                                                                cursor:pointer;
+                                                                                                margin:4px 0}
+                                                                                                .extremos{
+                                                                                                  display:flex;
+                                                                                                  justify-content:space-between;
+                                                                                                  color:var(--tenue);
+                                                                                                  font:400 11px var(--mono)}
+                                                                                                  .switch{
+                                                                                                    display:flex;
+                                                                                                    gap:10px;
+                                                                                                    align-items:center;
+                                                                                                    font-size:13px;
+                                                                                                    cursor:pointer;
+                                                                                                    position:relative}
+                                                                                                    .switch input{
+                                                                                                      position:absolute;
+                                                                                                      opacity:0;
+                                                                                                      width:1px}
+                                                                                                      .palanca{
+                                                                                                        width:32px;
+                                                                                                        height:18px;
+                                                                                                        flex-shrink:0;
+                                                                                                        border-radius:20px;
+                                                                                                        background:#47505b;
+                                                                                                        position:relative;
+                                                                                                        transition:background .2s}
+                                                                                                        .palanca:after{
+                                                                                                          content:'';
+                                                                                                          position:absolute;
+                                                                                                          width:12px;
+                                                                                                          height:12px;
+                                                                                                          top:3px;
+                                                                                                          left:3px;
+                                                                                                          background:#ece8df;
+                                                                                                          border-radius:50%;
+                                                                                                          transition:transform .2s}
+                                                                                                          .switch input:checked+.palanca{
+                                                                                                            background:var(--realce)}
+                                                                                                            .switch input:checked+.palanca:after{
+                                                                                                              transform:translateX(14px)}
+                                                                                                              .switch input:focus-visible+.palanca{
+                                                                                                                outline:2px solid var(--realce);
+                                                                                                                outline-offset:3px}
+                                                                                                                .subida{
+                                                                                                                  padding:22px;
+                                                                                                                  border-radius:7px}
+                                                                                                                  .subida label{
+                                                                                                                    display:block}
+                                                                                                                    .subida label span{
+                                                                                                                      display:block;
+                                                                                                                      color:var(--tinta2);
+                                                                                                                      font-size:.9rem;
+                                                                                                                      margin:4px 0 14px}
+                                                                                                                      .subida input{
+                                                                                                                        max-width:100%;
+                                                                                                                        font-size:.85rem}
+                                                                                                                        .subida input::file-selector-button,.boton{
+                                                                                                                          display:inline-flex;
+                                                                                                                          align-items:center;
+                                                                                                                          padding:9px 14px;
+                                                                                                                          background:#141b23;
+                                                                                                                          color:var(--tinta);
+                                                                                                                          border:1px solid var(--linea2);
+                                                                                                                          border-radius:4px;
+                                                                                                                          text-decoration:none;
+                                                                                                                          font-size:.88rem;
+                                                                                                                          cursor:pointer}
+                                                                                                                          .boton:hover,.subida input::file-selector-button:hover{
+                                                                                                                            border-color:var(--realce)}
+                                                                                                                            .grafica{
+                                                                                                                              width:100%;
+                                                                                                                              min-width:0;
+                                                                                                                              min-height:100px;
+                                                                                                                              margin:.8rem 0 1rem;
+                                                                                                                              overflow:hidden}
+                                                                                                                              .grafica .vega-embed{
+                                                                                                                                width:100%;
+                                                                                                                                padding:0!important}
+                                                                                                                                .grafica canvas,.grafica svg{
+                                                                                                                                  max-width:100%}
+                                                                                                                                  .visualizacion{
+                                                                                                                                    display:block;
+                                                                                                                                    width:100%;
+                                                                                                                                    border:0;
+                                                                                                                                    margin:1rem 0;
+                                                                                                                                    background:transparent}
+                                                                                                                                    .solo-lector{
+                                                                                                                                      position:absolute;
+                                                                                                                                      width:1px;
+                                                                                                                                      height:1px;
+                                                                                                                                      overflow:hidden;
+                                                                                                                                      clip:rect(0,0,0,0)}
+                                                                                                                                      .saltar{
+                                                                                                                                        position:fixed;
+                                                                                                                                        z-index:100;
+                                                                                                                                        top:-100px;
+                                                                                                                                        left:12px;
+                                                                                                                                        background:var(--tinta);
+                                                                                                                                        color:#0b0e12;
+                                                                                                                                        padding:10px}
+                                                                                                                                        .saltar:focus{
+                                                                                                                                          top:10px}
+                                                                                                                                          #estado-peticion{
+                                                                                                                                            position:fixed;
+                                                                                                                                            top:70px;
+                                                                                                                                            right:22px;
+                                                                                                                                            z-index:100;
+                                                                                                                                            background:#151d27;
+                                                                                                                                            border:1px solid var(--linea2);
+                                                                                                                                            padding:10px 16px;
+                                                                                                                                            border-radius:4px;
+                                                                                                                                            font-size:.85rem;
+                                                                                                                                            box-shadow:0 4px 25px #0008}
+                                                                                                                                            #estado-peticion[hidden]{
+                                                                                                                                              display:none}
+                                                                                                                                              #estado-peticion.error-peticion{
+                                                                                                                                                border-color:var(--realce);
+                                                                                                                                                max-width:min(450px,90vw)}
+                                                                                                                                                .cargando{
+                                                                                                                                                  cursor:progress}
+                                                                                                                                                  .cargando .opciones,.cargando select{
+                                                                                                                                                    opacity:.7}
+                                                                                                                                                    .kpi .ayuda{
+                                                                                                                                                      z-index:30}
+                                                                                                                                                      .seccion .h2{
+                                                                                                                                                        white-space:normal}
+                                                                                                                                                        .pie{
+                                                                                                                                                          padding-bottom:1rem}
+                                                                                                                                                          @media(max-width:900px){
+                                                                                                                                                            .cabecera-app{
+                                                                                                                                                              gap:8px;
+                                                                                                                                                              padding:8px 14px;
+                                                                                                                                                              flex-wrap:wrap}
+                                                                                                                                                              .marca img{
+                                                                                                                                                                width:178px;
+                                                                                                                                                                height:31px}
+                                                                                                                                                                .cabecera-app nav{
+                                                                                                                                                                  width:100%;
+                                                                                                                                                                  gap:2px}
+                                                                                                                                                                  .cabecera-app nav a{
+                                                                                                                                                                    font-size:12px;
+                                                                                                                                                                    padding:5px 8px}
+                                                                                                                                                                    .contenedor{
+                                                                                                                                                                      padding-top:8rem;
+                                                                                                                                                                      padding-left:20px;
+                                                                                                                                                                      padding-right:20px}
+                                                                                                                                                                      .columnas,.columnas.large{
+                                                                                                                                                                        grid-template-columns:1fr;
+                                                                                                                                                                        gap:14px}
+                                                                                                                                                                        .rejilla{
+                                                                                                                                                                          grid-template-columns:repeat(2,minmax(0,1fr))}
+                                                                                                                                                                          .seccion .h2{
+                                                                                                                                                                            font-size:1.8rem}
+                                                                                                                                                                            .destinos{
+                                                                                                                                                                              grid-template-columns:1fr 1fr}
+                                                                                                                                                                              .meta div{
+                                                                                                                                                                                padding:.5rem .7rem}
+                                                                                                                                                                                #estado-peticion{
+                                                                                                                                                                                  top:105px}
+                                                                                                                                                                                }
+                                                                                                                                                                                @media(max-width:480px){
+                                                                                                                                                                                  .cabecera-app nav a{
+                                                                                                                                                                                    padding:4px 6px}
+                                                                                                                                                                                    .contenedor{
+                                                                                                                                                                                      padding-left:14px;
+                                                                                                                                                                                      padding-right:14px}
+                                                                                                                                                                                      .rejilla{
+                                                                                                                                                                                        grid-template-columns:1fr 1fr;
+                                                                                                                                                                                        gap:8px}
+                                                                                                                                                                                        .kpi{
+                                                                                                                                                                                          padding:14px 11px}
+                                                                                                                                                                                          .kpi .v{
+                                                                                                                                                                                            font-size:2.4rem}
+                                                                                                                                                                                            .kpi .t{
+                                                                                                                                                                                              font-size:.58rem}
+                                                                                                                                                                                              .destinos{
+                                                                                                                                                                                                grid-template-columns:1fr}
+                                                                                                                                                                                                .opcion span{
+                                                                                                                                                                                                  font-size:12px;
+                                                                                                                                                                                                  padding:5px 8px}
+                                                                                                                                                                                                  .seccion{
+                                                                                                                                                                                                    gap:.6rem}
+                                                                                                                                                                                                    .lectura{
+                                                                                                                                                                                                      padding:18px 14px}
+                                                                                                                                                                                                      .ley-coh{
+                                                                                                                                                                                                        flex-wrap:wrap}
+                                                                                                                                                                                                        .titular{
+                                                                                                                                                                                                          overflow-wrap:break-word}
+                                                                                                                                                                                                          .folds{
+                                                                                                                                                                                                            grid-template-columns:75px repeat(5,1fr)}
+                                                                                                                                                                                                          }
+                                                                                                                                                                                                          @media(prefers-reduced-motion:reduce){
+                                                                                                                                                                                                            *,*::before,*::after{
+                                                                                                                                                                                                              animation:none!important;
+                                                                                                                                                                                                              transition:none!important;
+                                                                                                                                                                                                              scroll-behavior:auto!important}
+                                                                                                                                                                                                            }
+                                                                                                                                                                                                            /* Medidas de la cabecera y del lienzo conservadas del panel de referencia. */
+                                                                                                                                                                                                            @media(min-width:901px){
+                                                                                                                                                                                                              .contenedor{
+                                                                                                                                                                                                                padding-left:80px;
+                                                                                                                                                                                                                padding-right:80px;
+                                                                                                                                                                                                                padding-top:6.4rem}
+                                                                                                                                                                                                                .cabecera-app{
+                                                                                                                                                                                                                  height:60px;
+                                                                                                                                                                                                                  min-height:60px;
+                                                                                                                                                                                                                  padding:14px 16px;
+                                                                                                                                                                                                                  gap:16px}
+                                                                                                                                                                                                                  .marca img{
+                                                                                                                                                                                                                    width:188.8px;
+                                                                                                                                                                                                                    height:32px}
+                                                                                                                                                                                                                    .cabecera-app nav{
+                                                                                                                                                                                                                      gap:4px}
+                                                                                                                                                                                                                      .cabecera-app nav a{
+                                                                                                                                                                                                                        padding:4px 8px;
+                                                                                                                                                                                                                        border-radius:2px;
+                                                                                                                                                                                                                        line-height:20px}
+                                                                                                                                                                                                                      }
+                                                                                                                                                                                                                      .entradilla{
+                                                                                                                                                                                                                        font-size:16px;
+                                                                                                                                                                                                                        line-height:1.65}
+                                                                                                                                                                                                                        .segmentos .opciones{
+                                                                                                                                                                                                                          gap:0}
+                                                                                                                                                                                                                          .segmentos .opcion span{
+                                                                                                                                                                                                                            border-radius:0;
+                                                                                                                                                                                                                            background:#0b0e12;
+                                                                                                                                                                                                                            color:var(--tinta);
+                                                                                                                                                                                                                            margin-left:-1px}
+                                                                                                                                                                                                                            .segmentos .opcion:first-child span{
+                                                                                                                                                                                                                              border-radius:3px 0 0 3px;
+                                                                                                                                                                                                                              margin-left:0}
+                                                                                                                                                                                                                              .segmentos .opcion:last-child span{
+                                                                                                                                                                                                                                border-radius:0 3px 3px 0}
+                                                                                                                                                                                                                                .segmentos .opcion input:checked+span{
+                                                                                                                                                                                                                                  position:relative;
+                                                                                                                                                                                                                                  z-index:1;
+                                                                                                                                                                                                                                  background:rgba(201,119,83,.10);
+                                                                                                                                                                                                                                  color:var(--realce)}
+                                                                                                                                                                                                                                  legend.etiqueta{
+                                                                                                                                                                                                                                    padding:0;
+                                                                                                                                                                                                                                    font-size:11.2px}
+                                                                                                                                                                                                                                    .segmentos:first-child{
+                                                                                                                                                                                                                                      margin-top:0}

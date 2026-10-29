@@ -1,104 +1,163 @@
-"""Ejecuta cada página de la web sin navegador (requiere app/recursos y los paquetes)."""
+"""Comprueba el contrato HTTP, las interacciones y la inferencia del panel HTML."""
+import ast
+import base64
+from html.parser import HTMLParser
+import io
+import json
+from pathlib import Path
+import re
 import sys
 import unittest
-from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
-APP = RAIZ / "app"
-LISTO = (APP / "recursos" / "modelo_imagen.json").exists() and (RAIZ / "reports" / "modelo_elegido" / "imagen_v2").exists()
+sys.path[:0] = [str(RAIZ), str(RAIZ / 'src')]
 
+class Documento(HTMLParser):
+    def __init__(self, contenido):
+        super().__init__()
+        self.graficas, self.descargas, self.marcos = [], [], []
+        self.datos = None
+        self.feed(contenido)
 
-@unittest.skipUnless(LISTO, "faltan recursos de la web o el paquete de imagen")
-class TestPaginas(unittest.TestCase):
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == 'script' and a.get('class') == 'grafica-datos': self.datos = ''
+        if tag == 'a' and 'download' in a: self.descargas.append(a['href'])
+        if tag == 'iframe': self.marcos.append(a['srcdoc'])
+
+    def handle_data(self, data):
+        if self.datos is not None: self.datos += data
+
+    def handle_endtag(self, tag):
+        if tag == 'script' and self.datos is not None:
+            self.graficas.append(json.loads(self.datos)); self.datos = None
+
+class TestPanelHTML(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        for ruta in (str(RAIZ / "src"), str(APP)):
-            if ruta not in sys.path:
-                sys.path.insert(0, ruta)
+        import torch
+        from app.servidor import crear_app
+        torch.set_num_threads(2)
+        cls.app = crear_app()
+        cls.app.config['TESTING'] = True
+        cls.recursos = RAIZ / 'app/recursos'
 
-    def ejecutar(self, pagina):
-        from streamlit.testing.v1 import AppTest
-        # El inicio solo funciona dentro de la navegación (enlaces a otras páginas).
-        ruta = APP / "inicio.py" if pagina == "resumen.py" else APP / "paginas" / pagina
-        at = AppTest.from_file(str(ruta), default_timeout=120)
-        at.run()
-        self.assertFalse(at.exception, [e.value for e in at.exception])
-        return at
+    def setUp(self):
+        self.cliente = self.app.test_client()
 
-    def test_paginas_cargan(self):
-        for pagina in ("resumen.py", "red_imagen.py", "combinado.py", "metodologia.py", "prediccion.py"):
-            with self.subTest(pagina=pagina):
-                self.ejecutar(pagina)
+    def pagina(self, ruta, datos=None):
+        r = self.cliente.get(ruta) if datos is None else self.cliente.post(ruta, data=datos)
+        self.assertEqual(r.status_code, 200, r.get_data(as_text=True)[:500])
+        return r.get_data(as_text=True)
 
-    def test_prediccion_con_paciente_de_ejemplo(self):
-        at = self.ejecutar("prediccion.py")
-        at.segmented_control[0].set_value("Paciente de ejemplo").run()
-        self.assertFalse(at.exception, [e.value for e in at.exception])
-        textos = " ".join(m.value for m in at.markdown)
-        self.assertIn("Solo imagen · CNN", textos)
-        self.assertIn("submodelo subtipo+edad+volumen+imagen", textos)
-        self.assertEqual(len(at.get("iframe")), 2)  # visor y red
+    def test_cinco_paginas_y_recursos(self):
+        for ruta in ['/', '/prediccion', '/red_imagen', '/combinado', '/metodologia']:
+            with self.subTest(ruta=ruta):
+                texto = self.pagina(ruta)
+                self.assertIn('RedDCE · pCR', texto)
+                self.assertIn('<html lang="es">', texto)
+                self.assertNotIn('streamlit', texto.lower())
+                Documento(texto)
+                if ruta == '/prediccion': self.assertIn('step="any"', texto)
+        for ruta in ['/salud', '/static/css/panel.css', '/static/js/panel.js', '/static/vendor/vega.min.js', '/recursos/logo.svg']:
+            with self.cliente.get(ruta) as respuesta:
+                self.assertEqual(respuesta.status_code, 200)
+        for ruta in ['/reports/modelo_elegido/imagen_v2/paquete.json', '/recursos/estructura_fusion.html', '/dataset', '/desconocida']:
+            self.assertEqual(self.cliente.get(ruta).status_code, 404)
 
-    def test_curvas_por_fold_y_epoca(self):
-        at = self.ejecutar("red_imagen.py")
-        selector = at.segmented_control(key="cnn_curvas_ambito")
-        self.assertEqual(len(selector.options), 6)
-        for fold in ("Fold 1", "Fold 5"):
-            at.segmented_control(key="cnn_curvas_ambito").set_value(fold).run()
-            at.select_slider(key=f"cnn_epoca_{fold}").set_value(1).run()
-            self.assertFalse(at.exception, [e.value for e in at.exception])
-            self.assertTrue(any("resume 3 redes" in c.value for c in at.caption))
-            self.assertTrue(any("Época 1 · entrenamiento" in m.value for m in at.markdown))
-        at.segmented_control(key="cnn_fold").set_value("Fold 3").run()
-        self.assertFalse(at.exception, [e.value for e in at.exception])
-        self.assertTrue(any("Fold 3 · AUC" in m.value for m in at.markdown))
+    def test_test_final_no_cambia_politica_y_descarga_exacta(self):
+        from app.componentes import num, pct
+        t = json.loads((self.recursos/'evaluacion_test.json').read_text())
+        for modelo, ruta, campos in [('fusion','/combinado',{}), ('imagen','/red_imagen',{'cnn_evaluacion':'Test final'})]:
+            texto = self.pagina(ruta, campos)
+            self.assertIn(num(t['modelos'][modelo]['auc']), texto)
+            self.assertIn(pct(t['modelos'][modelo]['clasificacion']['sensibilidad'],1), texto)
+            self.assertNotIn('Máximo macro-F1', texto)
+            documento = Documento(texto)
+            self.assertEqual(len(documento.graficas), 4)
+            self.assertEqual(json.loads(base64.b64decode(documento.descargas[0].split(',')[1])), t)
 
-    def test_fusion_con_umbral_y_patron_clinico(self):
-        import json
-        from componentes import num
+    def test_curvas_fold_epoca_y_resaltado(self):
+        from app.componentes import num
+        imagen=json.loads((self.recursos/'modelo_imagen.json').read_text())
+        for fold in (1,5):
+            texto=self.pagina('/red_imagen', {'cnn_curvas_ambito':f'Fold {fold}',f'cnn_epoca_Fold {fold}':'1','cnn_fold':'Fold 3'})
+            c=imagen['curvas_por_fold'][str(fold-1)][0]
+            self.assertIn('Época 1 · entrenamiento',texto)
+            self.assertIn(num(c['fit_bce_obj'],4),texto)
+            self.assertIn('resume 3 redes',texto)
+            self.assertIn('Fold 3 · AUC',texto)
+            self.assertEqual(len(Documento(texto).marcos),2)
 
-        at = self.ejecutar("combinado.py")
-        at.segmented_control(key="fusion_evaluacion").set_value("Validación cruzada").run()
-        self.assertEqual(len(at.get("iframe")), 1)
-        at.selectbox[0].set_value("subtipo+imagen").run()
-        next(c for c in at.segmented_control if "Máximo macro-F1" in c.options).set_value("Máximo macro-F1").run()
-        self.assertFalse(at.exception, [e.value for e in at.exception])
-        recurso = json.loads((APP / "recursos/modelo_fusion.json").read_text(encoding="utf-8"))
-        metrica = recurso["umbrales"]["subtipo+imagen"]["macro_f1"]
-        self.assertTrue(any(f"Umbral {num(metrica['umbral'])}" in c.value for c in at.caption))
-        self.assertEqual(len(recurso["diagnostico_generalizacion"]), 5)
-        self.assertTrue(recurso["pr"]["completa+imagen"])
-        self.assertTrue(recurso["calibracion"]["completa+imagen"])
+    def test_fusion_patron_y_umbral(self):
+        from app.componentes import num
+        datos={'fusion_evaluacion':'Validación cruzada','datos_disponibles_del_modelo_combinado':'subtipo+imagen','umbral_de_decision':'Máximo macro-F1'}
+        texto=self.pagina('/combinado',datos)
+        recurso=json.loads((self.recursos/'modelo_fusion.json').read_text())
+        self.assertIn('Umbral '+num(recurso['umbrales']['subtipo+imagen']['macro_f1']['umbral']),texto)
+        self.assertEqual(len(Documento(texto).marcos),1)
+        self.assertIn('Brecha AUC',texto)
 
+    def test_inicio_separa_test_y_cv(self):
+        self.assertIn('Imagen + clínica · test',self.pagina('/'))
+        self.assertNotIn('Imagen + clínica · test',self.pagina('/',{'resumen_evaluacion':'Validación cruzada'}))
 
-    def test_resultados_finales_separados_de_validacion(self):
-        import json
-        from componentes import num, pct
+    @staticmethod
+    def png(valor=120, tamaño=(256,256)):
+        from PIL import Image
+        salida=io.BytesIO(); Image.new('L',tamaño,valor).save(salida,'PNG'); salida.seek(0)
+        return salida
 
-        recurso = json.loads((APP / "recursos/evaluacion_test.json").read_text())
-        at = self.ejecutar("combinado.py")
-        self.assertEqual(at.segmented_control(key="fusion_evaluacion").value, "Test final")
-        self.assertFalse(any("Máximo macro-F1" in c.options for c in at.segmented_control))
-        m = recurso["modelos"]["fusion"]
-        textos = " ".join(x.value for x in at.markdown)
-        self.assertIn(num(m["auc"]), textos)
-        self.assertIn(pct(m["clasificacion"]["sensibilidad"], 1), textos)
-        self.assertIn("resultado en test", textos)
-        self.assertNotIn("test pendiente", textos.lower())
-        at.segmented_control(key="fusion_evaluacion").set_value("Validación cruzada").run()
-        self.assertFalse(at.exception)
-        self.assertEqual(len(at.get("iframe")), 1)
-        at.segmented_control(key="fusion_evaluacion").set_value("Test final").run()
-        self.assertFalse(at.exception)
-        self.assertEqual(len(at.get("iframe")), 0)
-        at = self.ejecutar("red_imagen.py")
-        at.segmented_control(key="cnn_evaluacion").set_value("Test final").run()
-        self.assertFalse(at.exception)
-        self.assertIn(num(recurso["modelos"]["imagen"]["auc"]), " ".join(x.value for x in at.markdown))
-        at = self.ejecutar("resumen.py")
-        self.assertEqual(at.segmented_control(key="resumen_evaluacion").value, "Test final")
-        at.segmented_control(key="resumen_evaluacion").set_value("Validación cruzada").run()
-        self.assertFalse(at.exception)
+    def test_subida_png_equivale_a_inferencia_y_clinica(self):
+        import numpy as np
+        from app import estado, motor
+        from app.componentes import num
+        pixeles=np.stack([np.full((256,256),v,dtype=np.uint8) for v in [50,130,100]])[None]
+        pred=estado.prediccion(pixeles,('corte',))
+        esperada=motor.calibrar(estado.paquete_imagen(),pred.p_cruda)
+        datos={'origen':'Subir PNG','archivos':[(self.png(v),f'corte_{fase}.png') for fase,v in zip(['PRE','EARLY','LATE'],[50,130,100])],
+               'edad_conocida':'1','edad_anos':'50','volumen_conocido':'1','volumen_tumoral_cm3':'20','hr_subida':'Positivo','her2_subida':'Negativo'}
+        texto=self.pagina('/prediccion',datos)
+        self.assertIn(num(100*esperada,1)+'<small>%</small>',texto)
+        d=estado.paquete_fusion().decidir(pred.p_cruda,{'edad':50,'volumen':20,'HR':1.,'HER2':0.})
+        self.assertTrue(num(100*d['probabilidad_pcr'],1)+'<small>%</small>' in texto, 'La lectura combinada debe coincidir con los pesos guardados')
+        self.assertIn('submodelo subtipo+edad+volumen+imagen',texto)
+        self.assertEqual(len(Documento(texto).marcos),2)
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_datos_incompletos_duplicados_y_clinica_invalida(self):
+        texto=self.pagina('/prediccion',{'origen':'Subir PNG','archivos':[(self.png(),'corte_PRE.png')]})
+        self.assertIn('faltan fases',texto)
+        r=self.cliente.post('/prediccion',data={'origen':'Subir PNG','archivos':[(self.png(),'corte_PRE.png'),(self.png(),'corte_PRE.png')]})
+        self.assertEqual(r.status_code,400)
+        for valor in ('nan','inf','200'):
+            r=self.cliente.post('/prediccion',data={'origen':'Subir PNG','edad_conocida':'1','edad_anos':valor})
+            self.assertEqual(r.status_code,400)
+        r=self.cliente.post('/combinado',headers={'Origin':'https://otro.example'})
+        self.assertEqual(r.status_code,403)
+
+    def test_fragmentos_y_aislamiento_entre_clientes(self):
+        r=self.cliente.post('/combinado',data={'fusion_evaluacion':'Validación cruzada'},headers={'X-Panel-Fragmento':'1'})
+        self.assertEqual(r.status_code,200)
+        self.assertNotIn('<!doctype',r.get_data(as_text=True))
+        with self.app.test_client() as otra:
+            self.assertIn('resultado en test',otra.get('/combinado').get_data(as_text=True))
+        self.assertEqual(r.headers['Cache-Control'],'no-store')
+
+    def test_html_escapa_nombres_en_visores(self):
+        from app.presentacion import Pagina
+        from app.componentes import visor
+        with self.app.test_request_context('/'):
+            p=Pagina()
+            contenido=p.renderizar(lambda pagina: visor([], '</script><script>alert(1)</script>'))
+            doc=Documento(str(contenido))
+            self.assertNotIn('</script><script>alert(1)',doc.marcos[0])
+            self.assertIn('\\u003c/script>',doc.marcos[0])
+
+    def test_sin_dependencia_de_la_interfaz_anterior(self):
+        for p in (RAIZ/'app').rglob('*.py'):
+            for nodo in ast.walk(ast.parse(p.read_text())):
+                if isinstance(nodo,ast.Import): self.assertFalse(any(n.name.startswith('streamlit') for n in nodo.names))
+                if isinstance(nodo,ast.ImportFrom): self.assertFalse((nodo.module or '').startswith('streamlit'))
+        self.assertNotIn('streamlit',sys.modules)
+
+if __name__=='__main__': unittest.main()

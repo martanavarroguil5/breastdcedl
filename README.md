@@ -12,7 +12,10 @@ historial nuevo y una única rama, `main`.
 ## Estructura
 
 ```text
-app/                         Aplicación Streamlit y sus recursos
+app/                         Panel HTML y servidor de inferencia
+  templates/                 Plantillas HTML, controles y visores
+  static/                    CSS, JavaScript y librerías de gráficas
+  vistas/                    Contenido y datos de cada página
   requirements.txt           Dependencias de la aplicación
 dataset/                     Distribución local de BreastDCEDL (fuera de Git)
 experiments/                 Catálogo de ensayos con sus métricas y figuras
@@ -90,11 +93,16 @@ pesos finales. Para instalar solo entrenamiento, usar `requirements.txt`.
 
 ```bash
 .venv/bin/python scripts/verificar_modelos.py
-.venv/bin/python -m streamlit run app/inicio.py
+.venv/bin/python scripts/servir_panel.py
 ```
 
-La aplicación escucha en `localhost:8501`. Si se ejecuta por SSH, reenviar
-ese puerto desde el editor. La inferencia de la web utiliza CPU.
+La aplicación escucha en `http://127.0.0.1:8501`. Si se ejecuta por SSH, reenviar
+ese puerto desde el editor. La inferencia utiliza CPU. El navegador recibe HTML,
+CSS y JavaScript; Flask y Waitress sirven las páginas y ejecutan la inferencia
+con los pesos existentes. Las gráficas usan Vega y los visores conservan sus
+controles interactivos. No requiere un proceso de compilación frontend.
+
+[Arquitectura y ejecución del panel](app/README.md).
 
 ```bash
 .venv/bin/python -m training predecir \
