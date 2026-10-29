@@ -34,16 +34,24 @@ Los primeros tres bloques se recuperaron del historial del repositorio anterior.
 Para regenerar las figuras desde los JSON, sin entrenar ni cargar imágenes o pesos:
 
 ```bash
-.venv/bin/python experiments/generar_figuras.py
+.venv/bin/python scripts/generar_figuras_experimentos.py
 ```
 
 La figura histórica de curvas del bloque 05 se conserva como fuente y no se regenera con este comando. Las ejecuciones completas permanecen en `runs/` y en el archivo del proyecto anterior; no se duplican pesos ni datos de pacientes en este catálogo.
 
 ## Documentos y código de referencia
 
-- [Lecciones y decisiones](LECCIONES.md): síntesis histórica, con el contexto de cada versión.
-- [Protocolo de fusión](PROTOCOLO_FUSION.md) y [protocolo de offset](PROTOCOLO_OFFSET.md).
-- [Pendientes](PENDIENTES.md).
-- [Piloto de offset](offset.py) y [análisis](analisis/): código experimental existente.
+- [Lecciones y decisiones](lecciones.md): síntesis histórica, con el contexto de cada versión.
+- [Protocolo de fusión](protocolos/fusion_tardia.md) y [protocolo de offset](protocolos/offset_clinico.md).
+- [Pendientes](pendientes.md).
+- [Pilotos](pilotos/README.md): implementaciones experimentales y su estado.
+- [Análisis de desarrollo](analisis/README.md): módulos con nombres según lo que evalúan.
+- [Protocolos](protocolos/README.md): diseños previos de los ensayos.
 
 Estos ensayos no cambian los paquetes congelados ni la selección de modelos de la aplicación.
+
+## Organización y nombres
+
+Cada ensayo mantiene su carpeta numerada con `README.md`, `resultados.json`, `metricas.csv`, `figuras/`, `fuentes/` y `procedencia.json`. Los protocolos comunes están en `protocolos/`, los pilotos en `pilotos/`, los análisis en `analisis/` y las figuras compartidas en `figuras/`.
+
+Los lanzadores se reúnen en [scripts/](../scripts/README.md). Las fuentes históricas y los JSON de procedencia conservan sus nombres y rutas de la revisión original; esas rutas no describen necesariamente el árbol actual.

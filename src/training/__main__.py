@@ -142,7 +142,7 @@ def main(argv=None) -> None:
     fusion_final.add_argument("--imagen", default="imagen_v2", help="Paquete de imagen congelado")
 
     sub.add_parser("offset-cv", help="Piloto: CNN entrenada sobre la clínica (30 redes, reanudable)")
-    sub.add_parser("offset-evaluar", help="Evalúa el piloto offset según experiments/PROTOCOLO_OFFSET.md")
+    sub.add_parser("offset-evaluar", help="Evalúa el piloto offset según experiments/protocolos/offset_clinico.md")
 
     sub.add_parser("recursos-app", help="Escribe app/recursos/*.json desde runs/ (solo train)")
 
@@ -194,10 +194,10 @@ def main(argv=None) -> None:
         from .fusion import paquete_final
         print(paquete_final(args.nombre, args.imagen))
     elif args.orden == "offset-cv":
-        from experiments.offset import cv as cv_offset
+        from experiments.pilotos.offset_clinico import cv as cv_offset
         cv_offset()
     elif args.orden == "offset-evaluar":
-        from experiments.offset import evaluar as evaluar_offset
+        from experiments.pilotos.offset_clinico import evaluar as evaluar_offset
         print(json.dumps(evaluar_offset()["decision"], indent=2, ensure_ascii=False))
     elif args.orden == "recursos-app":
         from utils.recursos_app import escribir

@@ -1,6 +1,6 @@
 """Fusión tardía: puntuación de la CNN congelada + clínica en una regresión logística.
 
-Protocolo en experiments/PROTOCOLO_FUSION.md. La CNN no cambia; la clínica entra después.
+Protocolo en experiments/protocolos/fusion_tardia.md. La CNN no cambia; la clínica entra después.
 Con datos clínicos incompletos se usa un submodelo por patrón de variables
 disponibles (Fletcher Mercaldo y Blume, 2020), nunca imputación.
 """

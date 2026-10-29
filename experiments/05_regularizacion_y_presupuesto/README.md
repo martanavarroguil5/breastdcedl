@@ -49,5 +49,5 @@ El paquete entrenado se encuentra en [imagen_v2](../../reports/modelo_elegido/im
 
 - [Resultados estructurados](resultados.json) y [tabla CSV](metricas.csv), con precisión completa.
 - [Procedencia y hashes SHA-256](procedencia.json) de los informes conservados en [fuentes/](fuentes/).
-- Las figuras nuevas se regeneran con `python experiments/generar_figuras.py`, desde la raíz del proyecto.
+- Las figuras nuevas se regeneran con `python scripts/generar_figuras_experimentos.py`, desde la raíz del proyecto.
 - [Volver al catálogo](../README.md).

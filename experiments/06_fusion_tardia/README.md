@@ -6,7 +6,7 @@
 
 Una logística separada combina el logit de imagen, edad, log-volumen, HR y HER2. Se evita que una rama clínica entrenada conjuntamente absorba todo el aprendizaje de la CNN. Se usa regularización L2, C = 1 y pérdida normal para la logística; la CNN subyacente utiliza la receta ponderada de 12 épocas.
 
-La evaluación usa cinco folds exteriores. Para ajustar la logística de cada exterior se generan puntuaciones visuales fuera de muestra con cuatro folds interiores y tres semillas: 60 CNN internas. El exterior queda fuera del ajuste de las dos etapas. El [protocolo](../PROTOCOLO_FUSION.md) detalla los roles, la calibración y los contrastes.
+La evaluación usa cinco folds exteriores. Para ajustar la logística de cada exterior se generan puntuaciones visuales fuera de muestra con cuatro folds interiores y tres semillas: 60 CNN internas. El exterior queda fuera del ajuste de las dos etapas. El [protocolo](../protocolos/fusion_tardia.md) detalla los roles, la calibración y los contrastes.
 
 ## Resultados
 
@@ -36,5 +36,5 @@ La fila de imagen de esta tabla tiene recalibración logística: su Brier no es 
 
 - [Resultados estructurados](resultados.json) y [tabla CSV](metricas.csv), con precisión completa.
 - [Procedencia y hashes SHA-256](procedencia.json) de los informes conservados en [fuentes/](fuentes/).
-- Las figuras nuevas se regeneran con `python experiments/generar_figuras.py`, desde la raíz del proyecto.
+- Las figuras nuevas se regeneran con `python scripts/generar_figuras_experimentos.py`, desde la raíz del proyecto.
 - [Volver al catálogo](../README.md).

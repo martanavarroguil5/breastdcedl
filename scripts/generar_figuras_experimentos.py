@@ -1,6 +1,6 @@
 """Regenera figuras documentales a partir de métricas agregadas ya guardadas.
 
-Uso desde la raíz: python experiments/generar_figuras.py
+Uso desde la raíz: python scripts/generar_figuras_experimentos.py
 No carga datos de pacientes, pesos ni módulos de entrenamiento.
 """
 from pathlib import Path
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 
 
-RAIZ = Path(__file__).resolve().parent
+RAIZ = Path(__file__).resolve().parents[1] / "experiments"
 TINTA = '#233849'
 CONTROL = '#697d8a'
 ACENTO = '#147d82'

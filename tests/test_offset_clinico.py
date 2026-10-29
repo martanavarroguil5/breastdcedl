@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from experiments import offset
+from experiments.pilotos import offset_clinico as offset
 from training.entrenar import RECETAS, entrenar, logit_pcr, predecir
 from training.modelo import RedDCE
 

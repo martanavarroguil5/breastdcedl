@@ -3,7 +3,7 @@ import json
 import numpy as np, pandas as pd
 from PIL import Image
 from sklearn.metrics import roc_auc_score
-from experiments.analisis.aporte import completa, dauc_cv, lr_test, CLIN
+from experiments.analisis.aporte_imagen import completa, dauc_cv, lr_test, CLIN
 s = pd.read_csv("dataset/breastdcedl/metadata/samples.csv"); s = s[s.split == "train"]
 filas = []
 for _, f in s.iterrows():

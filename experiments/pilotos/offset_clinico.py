@@ -1,4 +1,4 @@
-"""Piloto: RedDCE entrenada sobre la clínica (experiments/PROTOCOLO_OFFSET.md).
+"""Piloto: RedDCE entrenada sobre la clínica (experiments/protocolos/offset_clinico.md).
 
 El logit de cada corte es o_clínico + f(x). El offset es fijo (no se entrena),
 así que la red solo puede mejorar la predicción a través de la imagen. Misma
@@ -71,7 +71,7 @@ def cv(nombre: str = "cv_offset", control: str = fusion.CV_EXTERIOR) -> Path:
     salida = RUNS / nombre
     salida.mkdir(parents=True, exist_ok=True)
     plan = {"receta": receta, "folds": folds, "semillas": semillas, "brazos": BRAZOS,
-            "perdida": "normal", "control": control, "protocolo": "experiments/PROTOCOLO_OFFSET.md",
+            "perdida": "normal", "control": control, "protocolo": "experiments/protocolos/offset_clinico.md",
             "entorno": entorno()}
     (salida / "plan.json").write_text(json.dumps(plan, indent=2, ensure_ascii=False))
     registro = Registro(salida / "registro.log")
@@ -203,7 +203,7 @@ def evaluar(nombre: str = "cv_offset", interna: str = "cv_interna_fusion") -> di
 def _markdown(r: dict) -> str:
     f = lambda x: f"{x:.3f}"
     lineas = ["# Piloto offset: CNN entrenada sobre la clínica", "",
-              "Protocolo: `experiments/PROTOCOLO_OFFSET.md`. OOF de train, 5 folds × 3 semillas.", "",
+              "Protocolo: `experiments/protocolos/offset_clinico.md`. OOF de train, 5 folds × 3 semillas.", "",
               "| Modelo | AUC media ± DE | AUC agrupada | AP | Brier |", "|---|---|---|---|---|"]
     for c, a in r["aucs"].items():
         lineas.append(f"| {c} | {f(a['media'])} ± {f(a['de'])} | {f(a['auc'])} | {f(a['ap'])} | {f(a['brier'])} |")

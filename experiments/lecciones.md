@@ -166,9 +166,9 @@ Referencia solo cohorte: 0,549 ± 0,027. La media normal la supera en +0,035
 proyecto de demostrar señal por encima de la cohorte, aunque el IC todavía
 toca el 0.
 
-![Pérdida y AUC por época, control frente a receta media](img/perdidas_vs_control.png)
+![Pérdida y AUC por época, control frente a receta media](figuras/perdidas_vs_control.png)
 
-![Pérdida y AUC por época, control, media y presupuesto lineal](img/perdidas_tres_recetas.png)
+![Pérdida y AUC por época, control, media y presupuesto lineal](figuras/perdidas_tres_recetas.png)
 
 ### Qué se aprendió
 
@@ -254,7 +254,7 @@ toca el 0.
 
 Desde el 27/10 el profesor permite usar datos clínicos. El diseño y las
 comparaciones se fijaron antes de entrenar en
-[PROTOCOLO_FUSION.md](PROTOCOLO_FUSION.md) (commit `5670b2f`). La CNN
+[protocolo de fusión](protocolos/fusion_tardia.md) (commit `5670b2f`). La CNN
 `imagen_v2` no cambia: su probabilidad entra como una variable más en una
 regresión logística con edad, log(1 + volumen), HR y HER2. Con datos
 incompletos se usa un submodelo por patrón de variables disponibles (Fletcher
@@ -336,7 +336,7 @@ Estética propia (27/10): tema oscuro de «sala de lectura» con navegación sup
   centrados en él) ni con rasgos cinéticos clásicos (AUC ≤ 0,53).
 - Para sumar +0,03 sobre la clínica, la imagen sola tendría que rondar 0,63.
 
-### Piloto: CNN entrenada sobre el offset clínico (`experiments/PROTOCOLO_OFFSET.md`)
+### Piloto: CNN entrenada sobre el offset clínico (`experiments/protocolos/offset_clinico.md`)
 
 La red no recibe la clínica: aprende solo el residuo, con
 logit = offset clínico fijo + f(imagen). Hay dos brazos: una cabeza, y tres

@@ -154,7 +154,7 @@ else:
     aviso("<b>No determinado.</b> La copia local no contiene las predicciones internas necesarias para medir "
           "la brecha de ajuste–validación. La AUC anidada mide generalización, pero no cuantifica esa brecha.", "atencion")
     with st.expander("Cómo completar el diagnóstico", icon=":material/terminal:"):
-        st.code("python scripts/diagnostico_fusion.py", language="bash")
+        st.code("python scripts/exportar_diagnostico_fusion.py", language="bash")
         st.caption("Ejecutar desde la raíz del proyecto en el equipo que conserva runs/cv_interna_fusion y "
                    "runs/cv_presupuesto. Reajusta solo las logísticas de los folds con el mismo C = 1; "
                    "no entrena CNN, no cambia el paquete final y no lee test.")

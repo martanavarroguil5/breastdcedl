@@ -15,14 +15,19 @@ historial nuevo y una única rama, `main`.
 app/                         Aplicación Streamlit y sus recursos
   requirements.txt           Dependencias de la aplicación
 dataset/                     Distribución local de BreastDCEDL (fuera de Git)
-experiments/                 Catálogo de ensayos, figuras y protocolos
+experiments/                 Catálogo de ensayos con sus métricas y figuras
+  protocolos/                Diseños previos de los experimentos
+  pilotos/                   Implementaciones de pilotos experimentales
+  analisis/                  Análisis de desarrollo
+  figuras/                   Figuras compartidas de las lecciones
 reports/
   modelo_elegido/
     imagen_v2/               Cinco pesos, calibración, umbral e historias
     fusion_clinica_v1/        Fusión clínica y referencia a la CNN
   validacion/                Resúmenes y gráficas de desarrollo
+  evaluacion_final/          Protocolo e informe del test cerrado
 runs/                        Ejecuciones completas y caché (fuera de Git)
-scripts/                     Entradas de entrenamiento y verificación
+scripts/                     Entradas de ejecución, exportación y verificación
 src/
   training/                  Red, entrenamiento, CV, fusión e inferencia
   utils/                     Datos, métricas, rutas y recursos de la web
@@ -32,6 +37,16 @@ pyproject.toml
 README.md
 requirements.txt
 ```
+
+Los archivos Python usan nombres descriptivos en `snake_case`; se mantienen
+los nombres convencionales de Python y del proyecto (`README.md`, `__init__.py`,
+`__main__.py`, `requirements.txt`). Los documentos comunes de experimentos
+usan minúsculas. Los paquetes entrenados y sus fuentes históricas conservan
+los nombres versionados para mantener la trazabilidad y sus hashes.
+
+El [índice de scripts](scripts/README.md) identifica qué hace cada lanzador.
+Los datos locales, la caché, las ejecuciones y el entorno virtual quedan fuera
+de Git; el código, los informes y los paquetes finales se versionan.
 
 ## Modelos
 
@@ -52,7 +67,7 @@ reentrenamiento ni ajustes sobre test. El combinado obtuvo 38 TP, 69 TN,
 54 FP y 15 FN en 176 pacientes. [Informe completo](reports/evaluacion_final/fusion_clinica_v1/README.md).
 Los protocolos y sus limitaciones están en
 [catálogo de experimentos](experiments/README.md) y en
-[las lecciones del proyecto](experiments/LECCIONES.md).
+[las lecciones del proyecto](experiments/lecciones.md).
 
 ## Instalación
 
@@ -112,7 +127,7 @@ Para actualizar esos recursos con las ejecuciones de train ya guardadas:
 
 ```bash
 .venv/bin/python scripts/exportar_curvas_cnn.py
-.venv/bin/python scripts/diagnostico_fusion.py
+.venv/bin/python scripts/exportar_diagnostico_fusion.py
 ```
 
 El primer comando lee las historias de la CNN. El segundo reajusta las
@@ -150,7 +165,7 @@ La fusión vigente usa la CV exterior `cv_presupuesto` y la CV interna
 ```
 
 Los comandos `offset-cv` y `offset-evaluar` reproducen el piloto descartado
-de `experiments/offset.py`. `recursos-app` regenera los resúmenes de la web
+de `experiments/pilotos/offset_clinico.py`. `recursos-app` regenera los resúmenes de la web
 desde las ejecuciones de train. `scripts/entrenar.py` expone la misma CLI.
 
 ## Evaluación

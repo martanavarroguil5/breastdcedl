@@ -17,7 +17,7 @@ web = ["streamlit==1.65.0", "altair==6.3.0"]
 breastdcedl = "training.__main__:main"
 
 [tool.setuptools]
-packages = ["training", "utils", "experiments", "experiments.analisis"]
+packages = ["training", "utils", "experiments", "experiments.analisis", "experiments.pilotos"]
 package-dir = {training = "src/training", utils = "src/utils", experiments = "experiments"}
 
 [tool.setuptools.dynamic]
