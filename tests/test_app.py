@@ -95,7 +95,8 @@ class TestPanelHTML(unittest.TestCase):
         texto=self.pagina('/combinado',datos)
         recurso=json.loads((self.recursos/'modelo_fusion.json').read_text())
         self.assertIn('Umbral '+num(recurso['umbrales']['subtipo+imagen']['macro_f1']['umbral']),texto)
-        self.assertEqual(len(Documento(texto).marcos),1)
+        # Estructura animada de la fusión y calculadora paso a paso.
+        self.assertEqual(len(Documento(texto).marcos),2)
         self.assertIn('Brecha AUC',texto)
 
     def test_inicio_separa_test_y_cv(self):
@@ -159,5 +160,16 @@ class TestPanelHTML(unittest.TestCase):
                 if isinstance(nodo,ast.Import): self.assertFalse(any(n.name.startswith('streamlit') for n in nodo.names))
                 if isinstance(nodo,ast.ImportFrom): self.assertFalse((nodo.module or '').startswith('streamlit'))
         self.assertNotIn('streamlit',sys.modules)
+
+    def test_estructura_de_la_fusion_y_orden_de_la_cnn(self):
+        for datos in (None, {'fusion_evaluacion': 'Validación cruzada'}):
+            with self.subTest(datos=datos):
+                texto = self.pagina('/combinado', datos)
+                self.assertIn('Cómo se combinan imagen y clínica', texto)
+                self.assertTrue(any('"ejemplos"' in m and '"coeficientes"' in m for m in Documento(texto).marcos))
+        cnn = self.pagina('/red_imagen')
+        self.assertLess(cnn.index('Recorrido de un corte por la red'), cnn.index('Pérdida de la CNN'))
+        self.assertLess(cnn.index('Arquitectura en bloques'), cnn.index('Pérdida de la CNN'))
+        self.assertRegex(cnn, r'<details id="detalle_[^"]+"><summary>Validación cruzada en 5 folds')
 
 if __name__=='__main__': unittest.main()

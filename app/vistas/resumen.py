@@ -169,8 +169,8 @@ def mostrar(pagina):
     seccion("6", "Contenido")
     destinos([
         ("prediccion", "Predicción individual", "Carga de las tres fases o paciente de ejemplo, visor de cortes y perfil de probabilidad."),
-        ("red_imagen", "CNN de imagen", "Validación cruzada en 5 folds, curvas de pérdida, arquitectura y discriminación."),
-        ("combinado", "Imagen + clínica", "Fusión tardía: test final y validación cruzada en vistas separadas."),
+        ("red_imagen", "CNN de imagen", "Recorrido de un corte por la red, arquitectura 3D, curvas de pérdida y validación cruzada."),
+        ("combinado", "Imagen + clínica", "Estructura animada de la fusión, importancia de cada dato y perfiles de pCR."),
         ("metodologia", "Datos y metodología", "Cohortes, separación por paciente, reglas de evaluación y limitaciones."),
     ])
     pie()

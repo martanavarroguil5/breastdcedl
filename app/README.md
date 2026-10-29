@@ -26,7 +26,7 @@ loopback por defecto; no se publica automáticamente en Internet.
 | `servidor.py` | Rutas HTTP, recursos permitidos y límites de las peticiones |
 | `templates/base.html` | Documento HTML, cabecera y navegación |
 | `templates/control.html` | Formularios, selectores, rangos y carga de archivos |
-| `templates/visores/` | Visor DCE, recorrido neuronal y arquitectura 3D |
+| `templates/visores/` | Visor DCE, recorrido neuronal, arquitectura 3D y estructura de la fusión |
 | `static/css/` | Estilo original y controles adaptables a móvil |
 | `static/js/panel.js` | Actualización de formularios y gráficas sin recargar la página |
 | `static/vendor/` | Vega, Vega-Lite y Vega-Embed, con versiones, hashes y licencias |

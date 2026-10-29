@@ -1,23 +1,37 @@
 import altair as alt
 import pandas as pd
 
+from .. import estado
 from ..componentes import (ACERO, COBRE, GRIS, TINTA2, _base, aviso, cabecera, calibracion, composicion_grafica,
-                         distribucion_grafica, grafica, mapa_clinico, matriz, num, pct, perfiles_grafica, pie, pr, recurso,
-                         roc, seccion, tabla, tarjetas, estructura_fusion)
+                         distribucion_grafica, fusion_visual, grafica, mapa_clinico, matriz, num, pct, perfiles_grafica,
+                         pie, pr, recurso, roc, seccion, tabla, tarjetas, estructura_fusion)
 from ..vista_test import mostrar_test
+
+
+def como_se_combinan(numero: str, fus: dict) -> None:
+    """Estructura animada de la fusión con los parámetros reales; se muestra en las dos vistas."""
+    sub = fus.get("configuracion", {}).get("submodelo")
+    if not sub:
+        return
+    seccion(numero, "Cómo se combinan imagen y clínica",
+            "Fusión tardía: la CNN ya entrenada resume la resonancia en una puntuación y una regresión logística la "
+            "combina con HR, HER2, edad y volumen. Cada línea es un peso real del paquete: su grosor es cuánto empuja "
+            "esa variable y su color, hacia dónde (naranja hacia pCR, azul en contra). Elige una paciente de ejemplo o "
+            "mueve los valores; pasa el ratón por cada pieza para ver su cálculo.")
+    fusion_visual(sub, fus["perfiles"]["subtipo+edad+volumen+imagen"], estado.portada())
 
 
 def mostrar(pagina):
     evaluacion_test = recurso("evaluacion_test")
+    fus = recurso("modelo_fusion")
     if evaluacion_test:
         vista = pagina.segmentos("Resultados del combinado", ["Test final", "Validación cruzada"],
                                      default="Test final", key="fusion_evaluacion") or "Test final"
         if vista == "Test final":
-            mostrar_test(pagina, evaluacion_test)
+            mostrar_test(pagina, evaluacion_test, intro=(lambda n: como_se_combinan(n, fus)) if fus else None)
             pie()
             pagina.terminar()
 
-    fus = recurso("modelo_fusion")
     if not fus:
         pagina.informacion("Faltan los recursos de evaluación del modelo combinado.")
         pagina.terminar()
@@ -42,11 +56,9 @@ def mostrar(pagina):
         {"t": "Pérdida · BCE", "v": num(m["bce"]), "d": "Fuera de fold; menor es mejor"},
     ])
 
+    como_se_combinan("1", fus)
 
-    if sub:
-        estructura_fusion(sub)
-
-    seccion("1", "Discriminación y estabilidad", "Cada paciente se evalúa fuera del ajuste de su fold.")
+    seccion("2", "Discriminación y estabilidad", "Cada paciente se evalúa fuera del ajuste de su fold.")
     c1, c2 = pagina.columnas(2, gap="large")
     with c1:
         grafica(roc({"Combinado": fus["roc"]["completa+imagen"]}, {"Combinado": COBRE}, "ROC del combinado · OOF anidada"))
@@ -68,7 +80,7 @@ def mostrar(pagina):
         filas += [{"Grupo": "Subtipo " + k, "AUC del combinado": num(v["completa+imagen"])} for k, v in r["auc_por_subtipo"].items()]
         tabla(pd.DataFrame(filas))
 
-    seccion("2", "Qué aporta cada dato",
+    seccion("3", "Qué aporta cada dato",
             "Importancia medida sin fugas: la misma validación anidada repetida quitando una variable cada vez. "
             "Cuanto más cae la AUC al quitarla, más aporta esa variable además de las demás.")
     brazos = r["brazos"]
@@ -113,7 +125,7 @@ def mostrar(pagina):
           "menudo. La imagen aporta algo distinto de estas variables: por eso la fusión mejora a la clínica sola, aunque "
           "la mejora sea pequeña.", "info")
 
-    seccion("3", "Errores de clasificación", "Selecciona el umbral: cambia el equilibrio entre falsos positivos y falsos negativos.")
+    seccion("4", "Errores de clasificación", "Selecciona el umbral: cambia el equilibrio entre falsos positivos y falsos negativos.")
     umbrales = {k: v for k, v in fus.get("umbrales", {}).items() if k.endswith("+imagen")}
     if umbrales:
         patron = pagina.selector("Datos disponibles del modelo combinado", list(umbrales),
@@ -132,7 +144,7 @@ def mostrar(pagina):
         pagina.texto_auxiliar("Umbrales elegidos con estas mismas OOF: las métricas de clasificación pueden ser optimistas. "
                    + ("La vista Test final aplica únicamente el Youden congelado." if evaluacion_test else "Test pendiente."))
 
-    seccion("4", "Perfiles de pCR",
+    seccion("5", "Perfiles de pCR",
             "En lugar de un sí o un no, cada paciente se sitúa en uno de cinco perfiles según su probabilidad. Los cortes "
             "son percentiles de las predicciones fuera de fold: el 10 % más bajo, el 20 % siguiente, el 40 % central, el "
             "20 % siguiente y el 10 % más alto.")
@@ -157,7 +169,7 @@ def mostrar(pagina):
                           pct(1 - extremos[-1]["tasa_pcr"]) + " no alcanzó pCR. Los perfiles reparten la incertidumbre; "
                           "no la eliminan. Cortes fijados solo con train, sin mirar el test.")
 
-    seccion("5", "Calidad de las probabilidades")
+    seccion("6", "Calidad de las probabilidades")
     c1, c2 = pagina.columnas(2, gap="large")
     with c1:
         if fus.get("calibracion", {}).get("completa+imagen"):
@@ -177,7 +189,7 @@ def mostrar(pagina):
     if not fus.get("calibracion", {}).get("completa+imagen"):
         pagina.texto_auxiliar("Calibración por deciles pendiente: faltan las probabilidades individuales OOF en esta copia.")
 
-    seccion("6", "Complejidad y parámetros de la fusión",
+    seccion("7", "Complejidad y parámetros de la fusión",
             "Cinco coeficientes y un intercepto en el submodelo completo; la CNN se mantiene congelada.")
     if sub:
         tarjetas([
@@ -205,8 +217,10 @@ def mostrar(pagina):
                                 for i, (k, v) in enumerate(sub["coeficientes"].items())]))
             pagina.texto_auxiliar(f"Intercepto {num(sub['intercepto'])}. Volumen transformado como log(1 + volumen). "
                        "Cada patrón de datos ausentes tiene su propia logística.")
+        with pagina.desplegable("Cálculo paso a paso con los parámetros del paquete", icon=":material/calculate:"):
+            estructura_fusion(sub)
 
-    seccion("7", "¿Hay sobreajuste de la fusión?",
+    seccion("8", "¿Hay sobreajuste de la fusión?",
             "Diagnóstico propio: rendimiento en el ajuste logístico frente al fold exterior reservado.")
     diag = fus.get("diagnostico_generalizacion", r.get("diagnostico_generalizacion", []))
     if diag:
@@ -231,7 +245,7 @@ def mostrar(pagina):
                        "runs/cv_presupuesto. Reajusta solo las logísticas de los folds con el mismo C = 1; "
                        "no entrena CNN, no cambia el paquete final y no lee test.")
 
-    seccion("8", "Conclusión")
+    seccion("9", "Conclusión")
     aviso("<b>Discriminación moderada en validación anidada.</b> El combinado obtiene AUC 0,714 y AP 0,505; "
           "sus probabilidades mejoran el Brier de la referencia constante. Esto no basta para afirmar "
           "buena calibración ni ausencia de sobreajuste. "

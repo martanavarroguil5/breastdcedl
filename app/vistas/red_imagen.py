@@ -44,111 +44,37 @@ def mostrar(pagina):
          "ayuda": "Con la receta antigua llegaba a 0,28 y la validación caía al azar."},
     ])
 
-    # ---------------------------------------------------------------- validación cruzada
-    datos = recurso("datos")
-    seccion("1", "Validación cruzada en 5 folds",
-            "Las 1.097 pacientes se reparten en 5 folds estratificados por pCR. En cada ronda se entrenan redes con "
-            "cuatro folds y se predice el quinto, que nunca vieron. Así, cada paciente recibe una predicción "
-            "<b>fuera de fold</b> y la AUC no premia la memorización.")
-    if datos and datos.get("particiones"):
-        nombres_rol = {"fit": "Entrenamiento (fit)", "seleccion": "Selección · 15 %", "exterior": "Evaluación · fold exterior"}
-        filas_rol = pd.DataFrame([
-            {"Ronda": f"Ronda {p['fold'] + 1}", "Rol": nombres_rol[rol], "orden": i, "Pacientes": p[rol]["n"],
-             "Con pCR": p[rol]["pcr"], "pCR": p[rol]["pcr"] / p[rol]["n"]}
-            for p in datos["particiones"] for i, rol in enumerate(("fit", "seleccion", "exterior"))])
-        barras_rol = alt.Chart(filas_rol).mark_bar(size=26, stroke=PANEL, strokeWidth=2).encode(
-            y=alt.Y("Ronda:N", title=None, axis=alt.Axis(labelFont="Geist", labelFontSize=11.5)),
-            x=alt.X("Pacientes:Q", stack="zero", title="Pacientes de desarrollo"),
-            color=alt.Color("Rol:N", scale=alt.Scale(domain=list(nombres_rol.values()), range=["#3a4552", ACERO, COBRE]),
-                            legend=alt.Legend(title=None)),
-            order=alt.Order("orden:Q"),
-            tooltip=["Ronda:N", "Rol:N", "Pacientes:Q", "Con pCR:Q", alt.Tooltip("pCR:Q", title="proporción pCR", format=".1%")])
-        grafica(_base(barras_rol.properties(title="Qué hace cada paciente en cada ronda"), 250))
-        pagina.texto_auxiliar("Entrenamiento ajusta los pesos; selección (15 % del resto) solo vigila las curvas de pérdida; "
-                              "evaluación es el fold exterior, que da la AUC. Todos los cortes de una paciente van juntos y la "
-                              "proporción de pCR es casi idéntica en todos los folds.")
+    # ---------------------------------------------------------------- arquitectura
+    seccion("1", "Recorrido de un corte por la red",
+            "Un corte real se propaga por la red de izquierda a derecha. Cada miniatura es el mapa de activación de un "
+            "filtro; las líneas representan los pesos efectivos entre los filtros con mayor contribución a la salida. "
+            "El selector de vista muestra el mismo filtro sobre el recorte de 256, 128 o 64 px.")
+    ej = estado.ejemplos()
+    c1, c2 = pagina.columnas([3, 2])
+    pid = c1.selector("Paciente de ejemplo (train)", ej.index, index=3, format_func=lambda p: (
+        f"{p} · {COHORTES.get(ej.loc[p, 'cohorte'], ej.loc[p, 'cohorte'])} · {'pCR' if ej.loc[p, 'pCR'] else 'no pCR'}"))
+    pixeles, nombres = estado.cortes_ejemplo(pid)
+    k = c2.rango("Corte", options=list(range(len(nombres))), value=len(nombres) // 2,
+                         format_func=lambda i: nombres[i]) if len(nombres) > 1 else 0
+    red_neuronal(estado.recorrido(pixeles[k]), alto=620)
 
-    fuentes_folds = {k: v for k, v in img.get("curvas_por_fold", {}).items() if v}
-    if fuentes_folds:
-        metricas_fold = {"Pérdida de validación": ("sel_bce_obj", "Pérdida BCE ponderada"),
-                         "Pérdida de entrenamiento": ("fit_bce_obj", "Pérdida BCE ponderada"),
-                         "AUC de validación": ("sel_auc", "AUC")}
-        metrica_fold = pagina.segmentos("Curva de los 5 folds", list(metricas_fold), default="Pérdida de validación",
-                                        key="cnn_folds_metrica") or "Pérdida de validación"
-        clave_fold, eje_fold = metricas_fold[metrica_fold]
-        filas_curva = pd.DataFrame([
-            {"Fold": f"Fold {int(k) + 1}", "época": c["epoca"], "valor": c[clave_fold],
-             "AUC fold exterior": m["auc_por_fold"][int(k)]}
-            for k, historia in sorted(fuentes_folds.items(), key=lambda par: int(par[0])) for c in historia])
-        resalte = alt.selection_point(fields=["Fold"], bind="legend")
-        lineas = alt.Chart(filas_curva).mark_line(strokeWidth=2, point=alt.OverlayMarkDef(size=28, filled=True)).encode(
-            x=alt.X("época:Q", axis=alt.Axis(tickMinStep=1, values=list(range(1, 13)), grid=False), scale=alt.Scale(domain=[1, 12])),
-            y=alt.Y("valor:Q", title=eje_fold, scale=alt.Scale(zero=False)),
-            color=alt.Color("Fold:N", scale=alt.Scale(range=[COBRE, ACERO, OCRE, GRIS, "#7f9c6b"]),
-                            legend=alt.Legend(title=None)),
-            opacity=alt.condition(resalte, alt.value(1), alt.value(0.12)),
-            tooltip=["Fold:N", "época:Q", alt.Tooltip("valor:Q", title=metrica_fold.lower(), format=".4f"),
-                     alt.Tooltip("AUC fold exterior:Q", format=".3f")]).add_params(resalte)
-        grafica(_base(lineas.properties(title=f"{metrica_fold} · los 5 folds a la vez"), 300))
-        pagina.texto_auxiliar("Cada línea es la media de las redes de un fold (una por semilla). Haz clic en la leyenda para "
-                              "aislar un fold. Que las cinco curvas sigan la misma forma indica que la receta de "
-                              "entrenamiento se comporta igual con particiones distintas de pacientes.")
-
-    pagina.texto("### AUC de cada fold exterior")
-    pagina.texto_auxiliar("En cada fold se evalúa un grupo distinto de pacientes, excluido del entrenamiento de sus redes. "
-               "Los folds son particiones independientes, no épocas consecutivas.")
-    valores_fold = m["auc_por_fold"]
-    opciones_fold = ["Todos"] + [f"Fold {i + 1}" for i in range(len(valores_fold))]
-    fold_elegido = pagina.segmentos("Resaltar un fold de la CNN", opciones_fold, default="Todos", key="cnn_fold") or "Todos"
-    filas_fold = pd.DataFrame([
-        {"Fold": f"Fold {i + 1}", "AUC": valor, "Azar": 0.5,
-         "Diferencia con la media": valor - m["auc_media_folds"],
-         "Resaltado": fold_elegido == "Todos" or fold_elegido == f"Fold {i + 1}"}
-        for i, valor in enumerate(valores_fold)
-    ])
-    base_fold = alt.Chart(filas_fold).encode(
-        x=alt.X("Fold:O", sort=opciones_fold[1:], title="Fold exterior · paciente fuera del entrenamiento"))
-    trazos_fold = base_fold.mark_rule(strokeWidth=3).encode(
-        y=alt.Y("Azar:Q", title="AUC · eje ampliado (0,45–0,65)", scale=alt.Scale(domain=[0.45, 0.65], zero=False)),
-        y2="AUC:Q", color=alt.condition(alt.datum.Resaltado, alt.value(COBRE), alt.value("#3c4652")))
-    puntos_fold = base_fold.mark_circle(size=180, stroke="#0d1116", strokeWidth=2).encode(
-        y="AUC:Q", color=alt.condition(alt.datum.Resaltado, alt.value(COBRE), alt.value(GRIS)),
-        tooltip=["Fold:O", alt.Tooltip("AUC:Q", format=".4f"),
-                 alt.Tooltip("Diferencia con la media:Q", format="+.4f")])
-    texto_fold = base_fold.mark_text(dy=-18, fontSize=14, color=TINTA2).encode(
-        y="AUC:Q", text=alt.Text("AUC:Q", format=".3f"))
-    referencias_fold = pd.DataFrame([
-        {"AUC": m["auc_media_folds"], "Referencia": "Media de los 5 folds"},
-        {"AUC": 0.5, "Referencia": "Azar"},
-    ])
-    lineas_fold = alt.Chart(referencias_fold).mark_rule(strokeDash=[5, 4], strokeWidth=1).encode(
-        y="AUC:Q", color=alt.Color("Referencia:N", scale=alt.Scale(
-            domain=["Media de los 5 folds", "Azar"], range=[COBRE, GRIS]), legend=alt.Legend(title=None)),
-        tooltip=["Referencia:N", alt.Tooltip("AUC:Q", format=".3f")])
-    grafica(_base(alt.layer(trazos_fold, lineas_fold, puntos_fold, texto_fold).properties(
-        title="Rendimiento de la CNN en cada partición de validación"), 320))
-    if fold_elegido != "Todos":
-        valor_fold = valores_fold[opciones_fold.index(fold_elegido) - 1]
-        tarjetas([
-            {"t": fold_elegido + " · AUC", "v": num(valor_fold), "d": "Predicciones fuera de fold", "acento": True},
-            {"t": "Diferencia con la media", "v": f"{valor_fold - m['auc_media_folds']:+.3f}".replace(".", ","),
-             "d": "Media de referencia: " + num(m["auc_media_folds"])},
-            {"t": "Diferencia con el azar", "v": f"{valor_fold - 0.5:+.3f}".replace(".", ","), "d": "Azar = 0,500"},
-        ])
-    else:
-        tarjetas([
-            {"t": "Media de los folds", "v": num(m["auc_media_folds"]), "d": "5 particiones de pacientes", "acento": True},
-            {"t": "Variación entre folds", "v": num(m["auc_de_folds"]), "d": "Desviación estándar; no es un IC"},
-            {"t": "Rango observado", "v": num(min(valores_fold)) + "–" + num(max(valores_fold)),
-             "d": "Separación máximo − mínimo: " + num(max(valores_fold) - min(valores_fold))},
-        ])
-    pagina.texto_auxiliar("Los cinco valores son superiores a 0,5, con una señal débil y variación pequeña entre particiones. "
-               "Sin intervalos por fold, eso no demuestra significación en cada uno ni ausencia de sobreajuste.")
-
+    seccion("2", "Arquitectura en bloques",
+            "La misma red como volúmenes: la altura de cada bloque es proporcional a la resolución espacial y su "
+            "profundidad, al número de canales. Dentro de cada bloque se muestran mapas reales del corte seleccionado "
+            "y los conos indican el campo receptivo de la convolución entre etapas.")
+    bloques_3d(estado.bloques(pixeles[k]))
+    with pagina.desplegable("Tabla de capas", icon=":material/table_rows:"):
+        tabla(pd.DataFrame([{"Etapa": c["nombre"], "Salida": c["forma"], "Qué hace": c["detalle"],
+                             "Parámetros": c["params"] or "—"} for c in estado.capas_red()]))
+        pagina.texto_auxiliar("Las tres vistas pasan por el mismo tronco convolucional (pesos compartidos). La cabeza auxiliar del "
+                   "código no se usa en este modelo (λ = 0). Entrenamiento: AdamW, LR lineal hasta 0 en la época 12, EMA "
+                   "de pesos, BCE ponderada y aumentos geométricos idénticos en las tres fases. En la vista de arriba, el "
+                   "peso efectivo entre filtros es la suma de |pesos| de las dos convoluciones de cada bloque, escalada por "
+                   "su BatchNorm y por la activación del filtro de origen.")
 
     # ---------------------------------------------------------------- entrenamiento
     pagina.texto('<div id="perdida-cnn"></div>', unsafe_allow_html=True)
-    seccion("2", "Pérdida de la CNN · época a época",
+    seccion("3", "Pérdida de la CNN · época a época",
             "Entrenamiento y validación en la misma gráfica. Una pérdida menor indica menos error; "
             "si entrenamiento baja y validación sube, aumenta la brecha de generalización.")
     fuentes_curvas = {"Media de los 5 folds": curvas}
@@ -201,36 +127,110 @@ def mostrar(pagina):
                    "época 2–3: la brecha crecía hasta 0,28. La receta actual usa 3 cortes al azar por paciente y época "
                    "y un presupuesto fijo de 12 épocas.")
 
-    # ---------------------------------------------------------------- arquitectura
-    seccion("3", "Recorrido de un corte por la red",
-            "Un corte real se propaga por la red de izquierda a derecha. Cada miniatura es el mapa de activación de un "
-            "filtro; las líneas representan los pesos efectivos entre los filtros con mayor contribución a la salida. "
-            "El selector de vista muestra el mismo filtro sobre el recorte de 256, 128 o 64 px.")
-    ej = estado.ejemplos()
-    c1, c2 = pagina.columnas([3, 2])
-    pid = c1.selector("Paciente de ejemplo (train)", ej.index, index=3, format_func=lambda p: (
-        f"{p} · {COHORTES.get(ej.loc[p, 'cohorte'], ej.loc[p, 'cohorte'])} · {'pCR' if ej.loc[p, 'pCR'] else 'no pCR'}"))
-    pixeles, nombres = estado.cortes_ejemplo(pid)
-    k = c2.rango("Corte", options=list(range(len(nombres))), value=len(nombres) // 2,
-                         format_func=lambda i: nombres[i]) if len(nombres) > 1 else 0
-    red_neuronal(estado.recorrido(pixeles[k]), alto=620)
+    # ---------------------------------------------------------------- validación cruzada (plegada)
+    datos = recurso("datos")
+    with pagina.desplegable("Validación cruzada en 5 folds · particiones, curvas y AUC de cada fold",
+                            icon=":material/view_column:"):
+        pagina.texto_auxiliar("Las 1.097 pacientes se reparten en 5 folds estratificados por pCR. En cada ronda se "
+                              "entrenan redes con cuatro folds y se predice el quinto, que nunca vieron: cada paciente "
+                              "recibe una predicción fuera de fold y la AUC no premia la memorización.")
+        if datos and datos.get("particiones"):
+            nombres_rol = {"fit": "Entrenamiento (fit)", "seleccion": "Selección · 15 %", "exterior": "Evaluación · fold exterior"}
+            filas_rol = pd.DataFrame([
+                {"Ronda": f"Ronda {p['fold'] + 1}", "Rol": nombres_rol[rol], "orden": i, "Pacientes": p[rol]["n"],
+                 "Con pCR": p[rol]["pcr"], "pCR": p[rol]["pcr"] / p[rol]["n"]}
+                for p in datos["particiones"] for i, rol in enumerate(("fit", "seleccion", "exterior"))])
+            barras_rol = alt.Chart(filas_rol).mark_bar(size=26, stroke=PANEL, strokeWidth=2).encode(
+                y=alt.Y("Ronda:N", title=None, axis=alt.Axis(labelFont="Geist", labelFontSize=11.5)),
+                x=alt.X("Pacientes:Q", stack="zero", title="Pacientes de desarrollo"),
+                color=alt.Color("Rol:N", scale=alt.Scale(domain=list(nombres_rol.values()), range=["#3a4552", ACERO, COBRE]),
+                                legend=alt.Legend(title=None)),
+                order=alt.Order("orden:Q"),
+                tooltip=["Ronda:N", "Rol:N", "Pacientes:Q", "Con pCR:Q", alt.Tooltip("pCR:Q", title="proporción pCR", format=".1%")])
+            grafica(_base(barras_rol.properties(title="Qué hace cada paciente en cada ronda"), 250))
+            pagina.texto_auxiliar("Entrenamiento ajusta los pesos; selección (15 % del resto) solo vigila las curvas de pérdida; "
+                                  "evaluación es el fold exterior, que da la AUC. Todos los cortes de una paciente van juntos y la "
+                                  "proporción de pCR es casi idéntica en todos los folds.")
 
-    seccion("4", "Arquitectura en bloques",
-            "La misma red como volúmenes: la altura de cada bloque es proporcional a la resolución espacial y su "
-            "profundidad, al número de canales. Dentro de cada bloque se muestran mapas reales del corte seleccionado "
-            "y los conos indican el campo receptivo de la convolución entre etapas.")
-    bloques_3d(estado.bloques(pixeles[k]))
-    with pagina.desplegable("Tabla de capas", icon=":material/table_rows:"):
-        tabla(pd.DataFrame([{"Etapa": c["nombre"], "Salida": c["forma"], "Qué hace": c["detalle"],
-                             "Parámetros": c["params"] or "—"} for c in estado.capas_red()]))
-        pagina.texto_auxiliar("Las tres vistas pasan por el mismo tronco convolucional (pesos compartidos). La cabeza auxiliar del "
-                   "código no se usa en este modelo (λ = 0). Entrenamiento: AdamW, LR lineal hasta 0 en la época 12, EMA "
-                   "de pesos, BCE ponderada y aumentos geométricos idénticos en las tres fases. En la vista de arriba, el "
-                   "peso efectivo entre filtros es la suma de |pesos| de las dos convoluciones de cada bloque, escalada por "
-                   "su BatchNorm y por la activación del filtro de origen.")
+        fuentes_folds = {k: v for k, v in img.get("curvas_por_fold", {}).items() if v}
+        if fuentes_folds:
+            metricas_fold = {"Pérdida de validación": ("sel_bce_obj", "Pérdida BCE ponderada"),
+                             "Pérdida de entrenamiento": ("fit_bce_obj", "Pérdida BCE ponderada"),
+                             "AUC de validación": ("sel_auc", "AUC")}
+            metrica_fold = pagina.segmentos("Curva de los 5 folds", list(metricas_fold), default="Pérdida de validación",
+                                            key="cnn_folds_metrica") or "Pérdida de validación"
+            clave_fold, eje_fold = metricas_fold[metrica_fold]
+            filas_curva = pd.DataFrame([
+                {"Fold": f"Fold {int(k) + 1}", "época": c["epoca"], "valor": c[clave_fold],
+                 "AUC fold exterior": m["auc_por_fold"][int(k)]}
+                for k, historia in sorted(fuentes_folds.items(), key=lambda par: int(par[0])) for c in historia])
+            resalte = alt.selection_point(fields=["Fold"], bind="legend")
+            lineas = alt.Chart(filas_curva).mark_line(strokeWidth=2, point=alt.OverlayMarkDef(size=28, filled=True)).encode(
+                x=alt.X("época:Q", axis=alt.Axis(tickMinStep=1, values=list(range(1, 13)), grid=False), scale=alt.Scale(domain=[1, 12])),
+                y=alt.Y("valor:Q", title=eje_fold, scale=alt.Scale(zero=False)),
+                color=alt.Color("Fold:N", scale=alt.Scale(range=[COBRE, ACERO, OCRE, GRIS, "#7f9c6b"]),
+                                legend=alt.Legend(title=None)),
+                opacity=alt.condition(resalte, alt.value(1), alt.value(0.12)),
+                tooltip=["Fold:N", "época:Q", alt.Tooltip("valor:Q", title=metrica_fold.lower(), format=".4f"),
+                         alt.Tooltip("AUC fold exterior:Q", format=".3f")]).add_params(resalte)
+            grafica(_base(lineas.properties(title=f"{metrica_fold} · los 5 folds a la vez"), 300))
+            pagina.texto_auxiliar("Cada línea es la media de las redes de un fold (una por semilla). Haz clic en la leyenda para "
+                                  "aislar un fold. Que las cinco curvas sigan la misma forma indica que la receta de "
+                                  "entrenamiento se comporta igual con particiones distintas de pacientes.")
+
+        pagina.texto("### AUC de cada fold exterior")
+        pagina.texto_auxiliar("En cada fold se evalúa un grupo distinto de pacientes, excluido del entrenamiento de sus redes. "
+                   "Los folds son particiones independientes, no épocas consecutivas.")
+        valores_fold = m["auc_por_fold"]
+        opciones_fold = ["Todos"] + [f"Fold {i + 1}" for i in range(len(valores_fold))]
+        fold_elegido = pagina.segmentos("Resaltar un fold de la CNN", opciones_fold, default="Todos", key="cnn_fold") or "Todos"
+        filas_fold = pd.DataFrame([
+            {"Fold": f"Fold {i + 1}", "AUC": valor, "Azar": 0.5,
+             "Diferencia con la media": valor - m["auc_media_folds"],
+             "Resaltado": fold_elegido == "Todos" or fold_elegido == f"Fold {i + 1}"}
+            for i, valor in enumerate(valores_fold)
+        ])
+        base_fold = alt.Chart(filas_fold).encode(
+            x=alt.X("Fold:O", sort=opciones_fold[1:], title="Fold exterior · paciente fuera del entrenamiento"))
+        trazos_fold = base_fold.mark_rule(strokeWidth=3).encode(
+            y=alt.Y("Azar:Q", title="AUC · eje ampliado (0,45–0,65)", scale=alt.Scale(domain=[0.45, 0.65], zero=False)),
+            y2="AUC:Q", color=alt.condition(alt.datum.Resaltado, alt.value(COBRE), alt.value("#3c4652")))
+        puntos_fold = base_fold.mark_circle(size=180, stroke="#0d1116", strokeWidth=2).encode(
+            y="AUC:Q", color=alt.condition(alt.datum.Resaltado, alt.value(COBRE), alt.value(GRIS)),
+            tooltip=["Fold:O", alt.Tooltip("AUC:Q", format=".4f"),
+                     alt.Tooltip("Diferencia con la media:Q", format="+.4f")])
+        texto_fold = base_fold.mark_text(dy=-18, fontSize=14, color=TINTA2).encode(
+            y="AUC:Q", text=alt.Text("AUC:Q", format=".3f"))
+        referencias_fold = pd.DataFrame([
+            {"AUC": m["auc_media_folds"], "Referencia": "Media de los 5 folds"},
+            {"AUC": 0.5, "Referencia": "Azar"},
+        ])
+        lineas_fold = alt.Chart(referencias_fold).mark_rule(strokeDash=[5, 4], strokeWidth=1).encode(
+            y="AUC:Q", color=alt.Color("Referencia:N", scale=alt.Scale(
+                domain=["Media de los 5 folds", "Azar"], range=[COBRE, GRIS]), legend=alt.Legend(title=None)),
+            tooltip=["Referencia:N", alt.Tooltip("AUC:Q", format=".3f")])
+        grafica(_base(alt.layer(trazos_fold, lineas_fold, puntos_fold, texto_fold).properties(
+            title="Rendimiento de la CNN en cada partición de validación"), 320))
+        if fold_elegido != "Todos":
+            valor_fold = valores_fold[opciones_fold.index(fold_elegido) - 1]
+            tarjetas([
+                {"t": fold_elegido + " · AUC", "v": num(valor_fold), "d": "Predicciones fuera de fold", "acento": True},
+                {"t": "Diferencia con la media", "v": f"{valor_fold - m['auc_media_folds']:+.3f}".replace(".", ","),
+                 "d": "Media de referencia: " + num(m["auc_media_folds"])},
+                {"t": "Diferencia con el azar", "v": f"{valor_fold - 0.5:+.3f}".replace(".", ","), "d": "Azar = 0,500"},
+            ])
+        else:
+            tarjetas([
+                {"t": "Media de los folds", "v": num(m["auc_media_folds"]), "d": "5 particiones de pacientes", "acento": True},
+                {"t": "Variación entre folds", "v": num(m["auc_de_folds"]), "d": "Desviación estándar; no es un IC"},
+                {"t": "Rango observado", "v": num(min(valores_fold)) + "–" + num(max(valores_fold)),
+                 "d": "Separación máximo − mínimo: " + num(max(valores_fold) - min(valores_fold))},
+            ])
+        pagina.texto_auxiliar("Los cinco valores son superiores a 0,5, con una señal débil y variación pequeña entre particiones. "
+                   "Sin intervalos por fold, eso no demuestra significación en cada uno ni ausencia de sobreajuste.")
 
     # ---------------------------------------------------------------- discriminación
-    seccion("5", "Capacidad de discriminación",
+    seccion("4", "Capacidad de discriminación",
             "Predicciones fuera de fold de las 1.097 pacientes de desarrollo. Estas gráficas no incluyen test.")
     c1, c2 = pagina.columnas(2, gap="large")
     with c1:
@@ -247,7 +247,7 @@ def mostrar(pagina):
 
     # ---------------------------------------------------------------- umbral y perfiles
     perfiles = img["perfiles"]
-    seccion("6", "Umbral y perfiles de pCR",
+    seccion("5", "Umbral y perfiles de pCR",
             "Un sí/no depende de un umbral y oculta la incertidumbre. Los perfiles ofrecen una lectura más honesta: qué "
             "proporción de pacientes con una probabilidad parecida alcanzó pCR.")
     c1, c2 = pagina.columnas([1, 1.25], gap="large")
@@ -276,7 +276,7 @@ def mostrar(pagina):
         pagina.texto_auxiliar("Cada punto agrupa un 10 % de pacientes. Cerca de la diagonal = probabilidades honestas. Que todos "
                    "queden entre ≈0,2 y ≈0,35 muestra que el modelo nunca está muy seguro.")
 
-    seccion("7", "Conclusión")
+    seccion("6", "Conclusión")
     aviso("Con imagen sola y una CNN desde cero se observa una <b>señal pequeña en desarrollo</b>: el intervalo "
           "reportado de la AUC excluye el azar y la variación entre folds es baja. Las curvas permiten examinar el "
           "sobreajuste, pero no descartarlo. "

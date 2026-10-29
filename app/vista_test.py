@@ -7,7 +7,8 @@ from .componentes import (ACERO, COBRE, COHORTES, aviso, cabecera, calibracion, 
                          matriz, num, pct, pr, roc, seccion, tabla, tarjetas)
 
 
-def mostrar_test(pagina, informe: dict, modelo: str = "fusion") -> None:
+def mostrar_test(pagina, informe: dict, modelo: str = "fusion", intro=None) -> None:
+    """intro(numero), si se indica, se dibuja como primera sección tras las cifras principales."""
     m = informe["modelos"][modelo]
     c = m["clasificacion"]
     fecha = "/".join(reversed(informe["fecha"].split("-")))
@@ -27,7 +28,11 @@ def mostrar_test(pagina, informe: dict, modelo: str = "fusion") -> None:
         {"t": "Precisión de pCR", "v": pct(c["precision_pcr"], 1),
          "d": f"{c['TP']} respuestas reales entre {c['TP'] + c['FP']} predicciones positivas"},
     ])
-    seccion("1", "Errores con la política congelada",
+    desfase = 0
+    if intro:
+        intro("1")
+        desfase = 1
+    seccion(str(1 + desfase), "Errores con la política congelada",
             "Positivo significa respuesta patológica completa (pCR). El umbral se eligió en desarrollo y se conserva aquí.")
     izquierda, derecha = pagina.columnas(2, gap="large")
     with izquierda:
@@ -47,7 +52,7 @@ def mostrar_test(pagina, informe: dict, modelo: str = "fusion") -> None:
             tabla(pd.DataFrame([{"Submodelo": f["submodelo"], "Pacientes": f["n"], "Umbral guardado": num(f["umbral"], 6)}
                                 for f in informe["umbrales_aplicados"]]))
             pagina.texto_auxiliar("Se utiliza el patrón de variables disponibles, sin imputación y sin buscar un umbral en test.")
-    seccion("2", "Discriminación y probabilidades")
+    seccion(str(2 + desfase), "Discriminación y probabilidades")
     izquierda, derecha = pagina.columnas(2, gap="large")
     with izquierda:
         grafica(roc({v["nombre"]: v["roc"] for v in informe["modelos"].values()},
@@ -63,7 +68,7 @@ def mostrar_test(pagina, informe: dict, modelo: str = "fusion") -> None:
         grafica(calibracion(m["calibracion"], intervalos_fijos=True))
         pagina.texto_auxiliar("Intervalos fijos de probabilidad de anchura 0,1; se omiten los vacíos. El tamaño de cada grupo "
                    "aparece al pasar el cursor. Es un diagnóstico descriptivo; no se ha reajustado la calibración.")
-    seccion("3", "Comparación en el mismo test")
+    seccion(str(3 + desfase), "Comparación en el mismo test")
     tabla(pd.DataFrame([
         {"Modelo": v["nombre"], "AUC": num(v["auc"]), "IC95 % AUC": f"{num(v['auc_ic95'][0])}–{num(v['auc_ic95'][1])}",
          "AP": num(v["ap"]), "Brier": num(v["brier"]),
@@ -75,7 +80,7 @@ def mostrar_test(pagina, informe: dict, modelo: str = "fusion") -> None:
                "Bootstrap pareado sobre las mismas pacientes. Los errores usan la política propia guardada de cada modelo.")
     aviso("Esta comparación mide el combinado frente a la CNN sola. No demuestra que la imagen mejore a la clínica "
           "sola: ese contraste no forma parte de esta evaluación de test.", "info")
-    seccion("4", "Resultados por cohorte", "Subgrupos pequeños: las diferencias son descriptivas y no se usan para cambiar el modelo.")
+    seccion(str(4 + desfase), "Resultados por cohorte", "Subgrupos pequeños: las diferencias son descriptivas y no se usan para cambiar el modelo.")
     tabla(pd.DataFrame([
         {"Cohorte": COHORTES.get(f["cohorte"], f["cohorte"]), "Pacientes": f["n"], "pCR": f["pcr"],
          "AUC combinado": num(f["auc_fusion"]) if f["auc_fusion"] is not None else "—",
@@ -83,7 +88,7 @@ def mostrar_test(pagina, informe: dict, modelo: str = "fusion") -> None:
          "FP combinado": f["clasificacion_fusion"]["FP"], "FN combinado": f["clasificacion_fusion"]["FN"]}
         for f in informe["cohortes"]
     ]))
-    seccion("5", "Alcance del cierre")
+    seccion(str(5 + desfase), "Alcance del cierre")
     aviso(informe["limite"] + " La validación privada sigue pendiente. Los pesos, coeficientes, calibración y "
           "umbrales se mantienen como estaban antes de abrir este test.", "atencion")
     pagina.texto_auxiliar("La validación cruzada se conserva en la otra vista. Su AUC media entre folds y su DE no son "

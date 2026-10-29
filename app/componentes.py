@@ -206,6 +206,27 @@ def bloques_3d(capas: list[dict], alto: int = 560) -> None:
     emitir_marco(codigo, height=alto + 4)
 
 
+# ---------------------------------------------------------------- estructura de la fusión animada
+
+_FUSION = (Path(__file__).parent / "templates/visores/fusion.html").read_text()
+
+EJEMPLOS_FUSION = [
+    {"nombre": "Triple negativo · 41 años", "valores": {"p": 0.56, "HR": 0, "HER2": 0, "edad": 41, "vol": 12}},
+    {"nombre": "HER2+ · 52 años", "valores": {"p": 0.55, "HR": 0, "HER2": 1, "edad": 52, "vol": 18}},
+    {"nombre": "HR+/HER2+ · 48 años", "valores": {"p": 0.55, "HR": 1, "HER2": 1, "edad": 48, "vol": 20}},
+    {"nombre": "HR+/HER2− · 60 años", "valores": {"p": 0.45, "HR": 1, "HER2": 0, "edad": 60, "vol": 45}},
+]
+
+
+def fusion_visual(parametros: dict, perfiles: dict, fases: dict, alto: int = 560) -> None:
+    """Imagen y clínica confluyendo en la logística, con los parámetros reales del paquete y sus perfiles."""
+    datos = {"parametros": parametros, "fases": {f: fases[f] for f in ("PRE", "EARLY", "LATE")},
+             "perfiles": {"cortes": perfiles["cortes"], "perfiles": perfiles["perfiles"]}, "ejemplos": EJEMPLOS_FUSION}
+    codigo = (_FUSION.replace("__FUENTES__", FUENTES).replace("__ALTO__", str(alto))
+              .replace("__DATOS__", json.dumps(datos, ensure_ascii=False).replace("<", "\\u003c")))
+    emitir_marco(codigo, height=alto + 4)
+
+
 # ---------------------------------------------------------------- visor de cortes
 
 _VISOR = (Path(__file__).parent / "templates/visores/cortes.html").read_text()
