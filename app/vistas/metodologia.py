@@ -76,7 +76,7 @@ def mostrar(pagina):
         ("Paciente", "Media de las probabilidades de sus cortes y de las redes"),
         ("Test único", "El test público se evalúa una vez, con el modelo congelado"),
     ])
-    aviso("<b>Reglas del cierre.</b> Los pesos, la calibración y los umbrales del paquete actual se fijan antes del tepagina. "
+    aviso("<b>Reglas del cierre.</b> Los pesos, la calibración y los umbrales del paquete actual se fijan antes del test. "
           "No se retocan con sus resultados. Las comparaciones de CV usan bootstrap pareado por fold y clase; "
           "la comparación de test remuestrea las mismas pacientes por clase.", "clave")
     if evaluacion_test:

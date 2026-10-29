@@ -15,8 +15,10 @@ RECURSOS = Path(__file__).resolve().parent / "recursos"
 # Paleta de gráficas validada (CVD y contraste) sobre el panel oscuro #0e1217.
 COBRE, ACERO, OCRE, GRIS = "#c46a46", "#3790b8", "#a8843a", "#8d949d"
 TINTA, TINTA2, TENUE, LINEA, PANEL = "#ece8df", "#a9afb7", "#6b7480", "#1d252f", "#0d1116"
-BANDAS = {"baja": "#4a3027", "intermedia": "#8a4e33", "alta": "#c97753"}
-NOMBRE_BANDA = {"baja": "Probabilidad baja", "intermedia": "Zona intermedia", "alta": "Probabilidad alta"}
+# Cinco perfiles de probabilidad de pCR, de menos a más: rampa de cobre de oscuro a claro.
+PERFILES = {"muy_baja": "#4a3027", "baja": "#6e3f2c", "intermedia": "#8f5135", "alta": "#b9663f", "muy_alta": "#e09466"}
+NOMBRE_PERFIL = {"muy_baja": "Muy baja", "baja": "Baja", "intermedia": "Intermedia", "alta": "Alta", "muy_alta": "Muy alta"}
+SUBTIPOS = {"HR+/HER2−": ACERO, "HER2+": OCRE, "Triple negativo": COBRE}
 COHORTES = {"spy2": "I-SPY2", "duke": "Duke", "spy1": "I-SPY1"}
 FUENTES = ("https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600"
            "&family=Instrument+Serif:ital@0;1&display=swap")
@@ -90,33 +92,43 @@ def num(x: float, dec: int = 3) -> str:
     return f"{x:.{dec}f}".replace(".", ",")
 
 
-def banda_de(p: float, info: dict) -> str:
-    c1, c2 = info["cortes"]
-    return "baja" if p < c1 else ("intermedia" if p < c2 else "alta")
+def perfil_de(p: float, info: dict) -> str:
+    return list(PERFILES)[int(np.searchsorted(info["cortes"], p, side="right"))]
 
 
-def chip_banda(banda: str) -> str:
-    color = "#0b0e12" if banda == "alta" else TINTA
-    return f'<span class="chip" style="background:{BANDAS[banda]};color:{color}">{NOMBRE_BANDA[banda]}</span>'
+def percentil_de(p: float, info: dict) -> int:
+    """Porcentaje de pacientes de desarrollo con una probabilidad OOF menor que p."""
+    return int(np.clip(np.searchsorted(info["percentiles"], p) - 1, 0, 100))
+
+
+def chip_perfil(perfil: str) -> str:
+    color = "#0b0e12" if perfil in ("alta", "muy_alta") else TINTA
+    numero = list(PERFILES).index(perfil) + 1
+    return (f'<span class="chip" style="background:{PERFILES[perfil]};color:{color}">'
+            f'P{numero} · {NOMBRE_PERFIL[perfil]}</span>')
 
 
 # ---------------------------------------------------------------- lectura de una probabilidad
 
 def lectura(titulo: str, p: float, info: dict, umbral: float, pie: str, extra: str = "") -> None:
-    """Cifra grande, banda observada en la CV y regla con las tres bandas, el umbral y la aguja."""
-    filas = info["bandas"]
+    """Cifra grande, perfil observado en la CV, regla con los cinco perfiles, el umbral y la aguja."""
+    filas = info["perfiles"]
     hi = max(0.6, min(1.0, filas[-1]["p_max"] + 0.05))
     x = lambda v: 100 * min(max(v, 0.0), hi) / hi
     limites = [0.0, *info["cortes"], hi]
-    banda = banda_de(p, info)
-    fila = next(f for f in filas if f["banda"] == banda)
-    segmentos = []
+    perfil = perfil_de(p, info)
+    fila = next(f for f in filas if f["perfil"] == perfil)
+    segmentos, escalera = [], []
     for f, a, b in zip(filas, limites[:-1], limites[1:]):
         ic = f["ic95"]
-        tip = (f"<b>{NOMBRE_BANDA[f['banda']]}</b> · {num(a, 2)}–{num(b, 2)}<br>En la validación cruzada: "
-               f"{f['pcr']} pCR de {f['n']} pacientes ({pct(f['tasa_pcr'])}; IC95 % {pct(ic[0])}–{pct(ic[1])})")
-        segmentos.append(f'<div class="seg" style="left:{x(a):.2f}%;width:{x(b) - x(a):.2f}%;background:{BANDAS[f["banda"]]}">'
+        tip = (f"<b>{NOMBRE_PERFIL[f['perfil']]}</b> · probabilidad {num(a, 2)}–{num(b, 2)}<br>En la validación cruzada: "
+               f"{f['pcr']} pCR de {f['n']} pacientes ({pct(f['tasa_pcr'])}; IC95 % {pct(ic[0])}–{pct(ic[1])}), "
+               f"{num(f['razon'], 1)} × la media")
+        segmentos.append(f'<div class="seg" style="left:{x(a):.2f}%;width:{x(b) - x(a):.2f}%;background:{PERFILES[f["perfil"]]}">'
                          f'<div class="tip">{tip}</div></div>')
+        escalera.append(f'<div class="{"on" if f["perfil"] == perfil else ""}" title="{f["n"]} pacientes · {f["pcr"]} con pCR">'
+                        f'<i style="background:{PERFILES[f["perfil"]]}"></i><span>{NOMBRE_PERFIL[f["perfil"]]}</span>'
+                        f'<b>{pct(f["tasa_pcr"])}</b></div>')
     marcas = "".join(
         f'<div class="tick{" m" if round(v * 100) % 10 == 0 else ""}" style="left:{x(v):.2f}%">'
         + (f"<span>{num(v, 1)}</span>" if round(v * 100) % 10 == 0 else "") + "</div>"
@@ -125,11 +137,14 @@ def lectura(titulo: str, p: float, info: dict, umbral: float, pie: str, extra: s
     emitir_html(
         f'<div class="lectura"><div class="cab"><span class="t">{titulo}</span><span>umbral {num(umbral, 3)} → {clase}</span></div>'
         f'<div class="cifra">{num(100 * p, 1)}<small>%</small></div>'
-        f'<div class="que">{chip_banda(banda)} En la validación cruzada, <b>{pct(fila["tasa_pcr"])}</b> de las pacientes '
-        f'de esta banda alcanzó pCR (IC95 % {pct(fila["ic95"][0])}–{pct(fila["ic95"][1])}).{extra}</div>'
+        f'<div class="que">{chip_perfil(perfil)} En la validación cruzada, <b>{pct(fila["tasa_pcr"])}</b> de las pacientes '
+        f'de este perfil alcanzó pCR (IC95 % {pct(fila["ic95"][0])}–{pct(fila["ic95"][1])}): <b>{num(fila["razon"], 1)} ×</b> '
+        f'la media del {pct(info["prevalencia"])}. Su probabilidad supera a la de <b>{percentil_de(p, info)} %</b> de las '
+        f'pacientes de desarrollo.{extra}</div>'
         f'<div class="regla-p">{"".join(segmentos)}{marcas}'
         f'<div class="umbral {"izq" if p >= umbral else "der"}" style="left:{x(umbral):.2f}%"><span>UMBRAL</span></div>'
         f'<div class="aguja" style="left:{x(p):.2f}%"></div></div>'
+        f'<div class="escalera" aria-label="pCR observada en cada perfil">{"".join(escalera)}</div>'
         f'<div class="pie-l">{pie}</div></div>')
 
 
@@ -329,26 +344,182 @@ def calibracion(puntos: list[dict], intervalos_fijos: bool = False) -> alt.Chart
     return _base(alt.layer(diag, linea).properties(title=titulo), 320)
 
 
-def bandas_grafica(info: dict, titulo: str) -> alt.Chart:
-    df = pd.DataFrame(info["bandas"])
-    df["nombre"] = df["banda"].map(NOMBRE_BANDA)
+def _filas_perfiles(info: dict) -> pd.DataFrame:
+    df = pd.DataFrame(info["perfiles"])
+    df["nombre"] = df["perfil"].map(NOMBRE_PERFIL)
     df["lo"], df["hi"] = df["ic95"].str[0], df["ic95"].str[1]
     df["rango"] = df.apply(lambda f: f"{f.p_min:.2f}–{f.p_max:.2f}", axis=1)
+    df["cuota"] = df["n"] / df["n"].sum()
+    if "subtipos" in df:
+        df["composicion"] = df["subtipos"].map(lambda d: " · ".join(f"{k} {v}" for k, v in d.items()))
+    return df
+
+
+def perfiles_grafica(info: dict, titulo: str) -> alt.Chart:
+    """pCR observada en cada perfil, con IC95 % de Wilson y la prevalencia como referencia."""
+    df = _filas_perfiles(info)
     df["texto"] = df["tasa_pcr"].map(lambda v: f"{100 * v:.0f} %")
-    orden = [NOMBRE_BANDA[b] for b in ("baja", "intermedia", "alta")]
-    x = alt.X("nombre:N", sort=orden, title=None, axis=alt.Axis(labelAngle=0, labelFont="Geist", labelFontSize=11.5))
-    barras = alt.Chart(df).mark_bar(cornerRadiusTopLeft=2, cornerRadiusTopRight=2, size=64).encode(
-        x=x, y=alt.Y("tasa_pcr:Q", title="pCR observada", axis=alt.Axis(format="%"), scale=alt.Scale(domain=[0, 0.8])),
-        color=alt.Color("banda:N", scale=alt.Scale(domain=list(BANDAS), range=list(BANDAS.values())), legend=None),
-        tooltip=[alt.Tooltip("nombre:N", title="banda"), alt.Tooltip("rango:N", title="probabilidad predicha"),
-                 alt.Tooltip("n:Q", title="pacientes"), alt.Tooltip("pcr:Q", title="con pCR"),
-                 alt.Tooltip("tasa_pcr:Q", title="pCR observada", format=".1%"),
-                 alt.Tooltip("lo:Q", title="IC95 % inferior", format=".1%"),
-                 alt.Tooltip("hi:Q", title="IC95 % superior", format=".1%")])
+    df["veces"] = df["razon"].map(lambda v: f"{v:.1f}×".replace(".", ","))
+    orden = [NOMBRE_PERFIL[p] for p in PERFILES]
+    x = alt.X("nombre:N", sort=orden, title="Perfil de probabilidad de pCR (de menos a más)",
+              axis=alt.Axis(labelAngle=0, labelFont="Geist", labelFontSize=11.5))
+    techo = max(0.8, float(df["hi"].max()) + 0.08)
+    tooltip = [alt.Tooltip("nombre:N", title="perfil"), alt.Tooltip("rango:N", title="probabilidad predicha"),
+               alt.Tooltip("n:Q", title="pacientes"), alt.Tooltip("cuota:Q", title="de la cohorte", format=".0%"),
+               alt.Tooltip("pcr:Q", title="con pCR"), alt.Tooltip("tasa_pcr:Q", title="pCR observada", format=".1%"),
+               alt.Tooltip("lo:Q", title="IC95 % inferior", format=".1%"),
+               alt.Tooltip("hi:Q", title="IC95 % superior", format=".1%"),
+               alt.Tooltip("razon:Q", title="veces la media", format=".2f")]
+    if "composicion" in df:
+        tooltip.append(alt.Tooltip("composicion:N", title="subtipos"))
+    barras = alt.Chart(df).mark_bar(cornerRadiusTopLeft=2, cornerRadiusTopRight=2, size=54).encode(
+        x=x, y=alt.Y("tasa_pcr:Q", title="pCR observada", axis=alt.Axis(format="%"), scale=alt.Scale(domain=[0, techo])),
+        color=alt.Color("perfil:N", scale=alt.Scale(domain=list(PERFILES), range=list(PERFILES.values())), legend=None),
+        tooltip=tooltip)
     error = alt.Chart(df).mark_rule(color=TINTA2, strokeWidth=1.2).encode(x=x, y="lo:Q", y2="hi:Q")
-    texto = alt.Chart(df).mark_text(dy=-10, dx=22, fontSize=11, color=TINTA2, align="left").encode(x=x, y="hi:Q", text="texto:N")
-    prev = alt.Chart(pd.DataFrame({"y": [info["prevalencia"]]})).mark_rule(color=TENUE, strokeDash=[3, 3]).encode(y="y:Q")
-    return _base(alt.layer(barras, error, texto, prev).properties(title=titulo), 300)
+    texto = alt.Chart(df).mark_text(dy=-10, fontSize=11.5, color=TINTA).encode(x=x, y="hi:Q", text="texto:N")
+    veces = alt.Chart(df).mark_text(dy=12, fontSize=10, color="#0b0e12", fontWeight=600).encode(
+        x=x, y="tasa_pcr:Q", text="veces:N", color=alt.condition("datum.perfil == 'muy_baja' || datum.perfil == 'baja'",
+                                                                  alt.value(TINTA2), alt.value("#0b0e12")))
+    prev = alt.Chart(pd.DataFrame({"y": [info["prevalencia"]], "t": [f"media de desarrollo: {100 * info['prevalencia']:.1f} %"]})
+                     ).mark_rule(color=TENUE, strokeDash=[3, 3]).encode(y="y:Q", tooltip=alt.Tooltip("t:N", title="referencia"))
+    return _base(alt.layer(barras, error, texto, veces, prev).resolve_scale(color="independent").properties(title=titulo), 320)
+
+
+def distribucion_grafica(info: dict, titulo: str, marca: float | None = None, texto_marca: str = "esta paciente") -> alt.Chart:
+    """Histograma de las probabilidades OOF (pCR y no pCR apiladas) sobre las zonas de los cinco perfiles."""
+    hist = pd.DataFrame(info["histograma"])
+    # Apilado explícito: sin pCR abajo y con pCR encima, cada tramo con su anchura real.
+    largo = pd.concat([hist.assign(clase="Sin pCR", pacientes=hist["no_pcr"], y0=0, y1=hist["no_pcr"]),
+                       hist.assign(clase="Con pCR", pacientes=hist["pcr"], y0=hist["no_pcr"], y1=hist["no_pcr"] + hist["pcr"])])
+    largo["tasa"] = (hist["pcr"] / (hist["pcr"] + hist["no_pcr"]).where(lambda t: t > 0)).tolist() * 2
+    bajo, alto = float(hist["desde"].min()), float(hist["hasta"].max())
+    limites = [bajo, *info["cortes"], alto]
+    zonas = pd.DataFrame([{"perfil": p, "nombre": NOMBRE_PERFIL[p], "a": a, "b": b}
+                          for p, a, b in zip(PERFILES, limites[:-1], limites[1:])])
+    x = alt.X("desde:Q", title="Probabilidad de pCR predicha fuera de fold", scale=alt.Scale(domain=[bajo, alto], nice=False),
+              axis=alt.Axis(format=".2f"))
+    fondo = alt.Chart(zonas).mark_rect(opacity=0.16).encode(
+        x=alt.X("a:Q", scale=alt.Scale(domain=[bajo, alto], nice=False)), x2="b:Q",
+        color=alt.Color("perfil:N", scale=alt.Scale(domain=list(PERFILES), range=list(PERFILES.values())), legend=None),
+        tooltip=[alt.Tooltip("nombre:N", title="perfil"), alt.Tooltip("a:Q", title="desde", format=".3f"),
+                 alt.Tooltip("b:Q", title="hasta", format=".3f")])
+    # Solo se rotulan las zonas con anchura suficiente; el resto se identifica al pasar el ratón.
+    anchas = zonas[(zonas["b"] - zonas["a"]) > 0.11 * (alto - bajo)].assign(medio=lambda z: (z["a"] + z["b"]) / 2)
+    etiquetas = alt.Chart(anchas).mark_text(
+        baseline="top", dy=4, fontSize=10, color=TINTA2, font="Geist Mono").encode(
+        x="medio:Q", y=alt.value(0), text="nombre:N")
+    barras = alt.Chart(largo).mark_rect(stroke=PANEL, strokeWidth=0.6).encode(
+        x=x, x2="hasta:Q", y=alt.Y("y0:Q", title="Pacientes de desarrollo"), y2="y1:Q",
+        color=alt.Color("clase:N", scale=alt.Scale(domain=["Sin pCR", "Con pCR"], range=["#4b5561", COBRE]),
+                        legend=alt.Legend(title=None)),
+        tooltip=[alt.Tooltip("desde:Q", title="desde", format=".3f"), alt.Tooltip("hasta:Q", title="hasta", format=".3f"),
+                 "clase:N", "pacientes:Q", alt.Tooltip("tasa:Q", title="pCR en el tramo", format=".0%")])
+    capas = [fondo, barras, etiquetas]
+    if marca is not None:
+        m = pd.DataFrame({"x": [min(max(marca, bajo), alto)], "t": [texto_marca], "p": [marca]})
+        capas += [alt.Chart(m).mark_rule(color=TINTA, strokeWidth=2).encode(
+                      x="x:Q", tooltip=[alt.Tooltip("t:N", title=" "), alt.Tooltip("p:Q", title="probabilidad", format=".3f")]),
+                  alt.Chart(m).mark_text(align="left", dx=6, dy=-4, baseline="bottom", fontSize=11, color=TINTA).encode(
+                      x="x:Q", y=alt.value(44), text="t:N")]
+    return _base(alt.layer(*capas).resolve_scale(color="independent").properties(title=titulo), 300)
+
+
+def composicion_grafica(info: dict, titulo: str) -> alt.Chart:
+    """Qué subtipos forman cada perfil (proporción de pacientes con subtipo conocido)."""
+    filas = [{"perfil": NOMBRE_PERFIL[f["perfil"]], "subtipo": s, "pacientes": n,
+              "cuota": n / max(1, sum(f["subtipos"].values()))}
+             for f in info["perfiles"] for s, n in f["subtipos"].items()]
+    df = pd.DataFrame(filas)
+    barras = alt.Chart(df).mark_bar(size=26).encode(
+        y=alt.Y("perfil:N", sort=[NOMBRE_PERFIL[p] for p in PERFILES], title=None,
+                axis=alt.Axis(labelFont="Geist", labelFontSize=11.5)),
+        x=alt.X("cuota:Q", stack="normalize", title="Proporción de pacientes del perfil", axis=alt.Axis(format="%")),
+        color=alt.Color("subtipo:N", scale=alt.Scale(domain=list(SUBTIPOS), range=list(SUBTIPOS.values())),
+                        legend=alt.Legend(title=None)),
+        tooltip=["perfil:N", "subtipo:N", "pacientes:Q", alt.Tooltip("cuota:Q", title="del perfil", format=".0%")])
+    return _base(barras.properties(title=titulo), 250)
+
+
+def mapa_realce(medias: dict, lado: int, modo: str, titulo: str, escala: float | None = None) -> alt.Chart:
+    """Mapa de calor de un recorte medio: realce (fase − fase) de un grupo o la diferencia entre grupos."""
+    a, b = {"temprano": ("EARLY", "PRE"), "lavado": ("LATE", "EARLY")}[modo]
+    if "pcr" in medias:
+        valor = ((np.array(medias["pcr"][a]) - np.array(medias["pcr"][b]))
+                 - (np.array(medias["no_pcr"][a]) - np.array(medias["no_pcr"][b])))
+    else:
+        valor = np.array(medias[a]) - np.array(medias[b])
+    yy, xx = np.mgrid[0:lado, 0:lado]
+    paso = 256 // lado
+    df = pd.DataFrame({"x": xx.ravel(), "y": yy.ravel(), "valor": valor.ravel(),
+                       "px": [f"{paso * i}–{paso * (i + 1) - 1}" for i in xx.ravel()],
+                       "py": [f"{paso * j}–{paso * (j + 1) - 1}" for j in yy.ravel()]})
+    if "pcr" in medias:
+        tope = float(np.abs(valor).max()) if escala is None else escala
+        color = alt.Color("valor:Q", scale=alt.Scale(domain=[-tope, 0, tope], range=[ACERO, "#0f141a", COBRE], interpolate="rgb"),
+                          legend=alt.Legend(title=None, orient="bottom", gradientLength=180, format="+.3f"))
+    else:
+        color = alt.Color("valor:Q", scale=alt.Scale(domain=[0, escala or float(valor.max())],
+                                                     range=["#0b0e12", "#6e2d1c", "#c97753", "#e8c39a"], interpolate="rgb"),
+                          legend=alt.Legend(title=None, orient="bottom", gradientLength=180, format=".2f"))
+    eje = dict(axis=None, scale=alt.Scale(domain=list(range(lado))))
+    celdas = alt.Chart(df).mark_rect(stroke=None).encode(
+        x=alt.X("x:O", **eje), y=alt.Y("y:O", **eje), color=color,
+        tooltip=[alt.Tooltip("px:N", title="columnas (px)"), alt.Tooltip("py:N", title="filas (px)"),
+                 alt.Tooltip("valor:Q", title=f"{a} − {b}" if "pcr" not in medias else "diferencia", format="+.4f")])
+    return _base(celdas.properties(title=titulo), 360)
+
+
+def cinetica_grafica(filas: list[dict]) -> alt.Chart:
+    """Intensidad media de la región central en PRE, EARLY y LATE, por grupo de respuesta."""
+    df = pd.DataFrame(filas)
+    color = alt.Color("clase:N", scale=alt.Scale(domain=["no pCR", "pCR"], range=[GRIS, COBRE]), legend=alt.Legend(title=None))
+    x = alt.X("fase:N", sort=["PRE", "EARLY", "LATE"], title=None, axis=alt.Axis(labelAngle=0))
+    banda = alt.Chart(df).mark_area(opacity=0.14).encode(x=x, y="p25:Q", y2="p75:Q", color=color)
+    linea = alt.Chart(df).mark_line(strokeWidth=2, point=alt.OverlayMarkDef(size=70, filled=True, stroke=PANEL, strokeWidth=2)).encode(
+        x=x, y=alt.Y("media:Q", title="Intensidad media (0–1) · región central", scale=alt.Scale(zero=False)), color=color,
+        tooltip=["clase:N", "fase:N", alt.Tooltip("media:Q", format=".3f"), alt.Tooltip("p25:Q", title="percentil 25", format=".3f"),
+                 alt.Tooltip("p75:Q", title="percentil 75", format=".3f")])
+    return _base(alt.layer(banda, linea).properties(title="Curva de captación del contraste"), 280)
+
+
+def subtipos_grafica(filas: list[dict], prevalencia: float) -> alt.Chart:
+    """pCR observada por subtipo molecular en train, con IC95 % de Wilson."""
+    df = pd.DataFrame(filas)
+    df["lo"], df["hi"] = df["ic95"].str[0], df["ic95"].str[1]
+    df["texto"] = df["tasa_pcr"].map(lambda v: f"{100 * v:.0f} %")
+    y = alt.Y("subtipo:N", sort=list(SUBTIPOS), title=None, axis=alt.Axis(labelFont="Geist", labelFontSize=12))
+    barras = alt.Chart(df).mark_bar(size=30, cornerRadiusTopRight=2, cornerRadiusBottomRight=2).encode(
+        y=y, x=alt.X("tasa_pcr:Q", title="Pacientes que alcanzaron pCR", axis=alt.Axis(format="%"),
+                     scale=alt.Scale(domain=[0, 0.6])),
+        color=alt.Color("subtipo:N", scale=alt.Scale(domain=list(SUBTIPOS), range=list(SUBTIPOS.values())), legend=None),
+        tooltip=["subtipo:N", alt.Tooltip("n:Q", title="pacientes"), alt.Tooltip("pcr:Q", title="con pCR"),
+                 alt.Tooltip("tasa_pcr:Q", title="pCR", format=".1%"), alt.Tooltip("lo:Q", title="IC95 % inferior", format=".1%"),
+                 alt.Tooltip("hi:Q", title="IC95 % superior", format=".1%")])
+    error = alt.Chart(df).mark_rule(color=TINTA2).encode(y=y, x="lo:Q", x2="hi:Q")
+    texto = alt.Chart(df).mark_text(align="left", dx=8, fontSize=12, color=TINTA).encode(y=y, x="hi:Q", text="texto:N")
+    prev = alt.Chart(pd.DataFrame({"x": [prevalencia], "t": [f"todas: {100 * prevalencia:.1f} %"]})).mark_rule(
+        color=TENUE, strokeDash=[3, 3]).encode(x="x:Q", tooltip=alt.Tooltip("t:N", title="media"))
+    return _base(alt.layer(barras, error, texto, prev).properties(title="pCR según el subtipo del tumor"), 230)
+
+
+def mapa_clinico(filas: list[dict], columna: str, orden: list[str], titulo: str, eje: str) -> alt.Chart:
+    """Mapa de calor de la pCR observada: subtipo × grupo clínico, con el número de pacientes."""
+    df = pd.DataFrame(filas)
+    df["texto"] = df.apply(lambda f: f"{100 * f.tasa_pcr:.0f} %", axis=1)
+    df["n_txt"] = df["n"].map(lambda n: f"n = {n}")
+    base = alt.Chart(df).encode(
+        x=alt.X(f"{columna}:N", sort=orden, title=eje, axis=alt.Axis(labelAngle=0, labelFont="Geist", labelFontSize=11.5)),
+        y=alt.Y("subtipo:N", sort=list(SUBTIPOS), title=None, axis=alt.Axis(labelFont="Geist", labelFontSize=11.5)))
+    celdas = base.mark_rect(stroke=PANEL, strokeWidth=4).encode(
+        color=alt.Color("tasa_pcr:Q", scale=alt.Scale(domain=[0, 0.6], range=["#141b23", COBRE, "#e8c39a"], interpolate="rgb"),
+                        legend=alt.Legend(title=None, format="%", orient="right", gradientLength=150)),
+        tooltip=["subtipo:N", alt.Tooltip(f"{columna}:N", title=eje.lower()), alt.Tooltip("n:Q", title="pacientes"),
+                 alt.Tooltip("pcr:Q", title="con pCR"), alt.Tooltip("tasa_pcr:Q", title="pCR observada", format=".1%")])
+    oscuro = alt.condition(alt.datum.tasa_pcr > 0.38, alt.value("#0b0e12"), alt.value(TINTA))
+    texto = base.mark_text(fontSize=15, fontWeight=500, dy=-6).encode(text="texto:N", color=oscuro)
+    n = base.mark_text(fontSize=10, dy=11, opacity=0.75).encode(text="n_txt:N", color=oscuro)
+    return _base(alt.layer(celdas, texto, n).properties(title=titulo), 260)
 
 
 def mancuernas(df: pd.DataFrame) -> alt.Chart:

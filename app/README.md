@@ -31,12 +31,12 @@ loopback por defecto; no se publica automáticamente en Internet.
 | `static/js/panel.js` | Actualización de formularios y gráficas sin recargar la página |
 | `static/vendor/` | Vega, Vega-Lite y Vega-Embed, con versiones, hashes y licencias |
 | `presentacion.py` | Construcción de fragmentos HTML y validación de controles por petición |
-| `componentes.py` | Tarjetas, tablas, bandas y especificaciones de las gráficas |
+| `componentes.py` | Tarjetas, tablas, perfiles de pCR y especificaciones de las gráficas |
 | `vistas/` | Contenido y selección de datos de las cinco páginas |
 | `vista_test.py` | Informe común del test ya cerrado |
 | `estado.py` | Carga de los pesos y acceso coordinado a la inferencia |
 | `motor.py` | Lectura de PNG, probabilidades y activaciones reales |
-| `recursos/` | Logo y resúmenes agregados de desarrollo y test |
+| `recursos/` | Logo y resúmenes agregados de desarrollo, datos y test |
 
 Las páginas aceptan GET y POST. Las peticiones del navegador con
 `X-Panel-Fragmento: 1` reciben solo el contenido actualizado; sin JavaScript,
@@ -50,6 +50,19 @@ La página valida las tres fases y el formato de 256 × 256. El navegador
 conserva los archivos seleccionados mientras se ajusta la clínica; al cambiar
 a ejemplos o salir de la página se descartan. Los controles y resultados se
 mantienen separados entre peticiones y no hay una sesión clínica global.
+
+Las probabilidades se leen por cinco perfiles de pCR (muy baja, baja,
+intermedia, alta y muy alta), con cortes en los percentiles 10, 30, 70 y 90
+de las predicciones fuera de fold de train. Cada perfil guarda su pCR
+observada, su IC95 %, la composición por subtipo y la distribución de las
+probabilidades. `recursos/datos.json` reúne los mapas medios de realce, la
+cinética del contraste, la clínica agregada y las particiones de los folds.
+Ambos se regeneran sin entrenar ni leer test, en el equipo que conserva
+`runs/`:
+
+```bash
+.venv/bin/python scripts/exportar_perfiles_y_datos.py
+```
 
 Los ejemplos y la portada requieren el dataset local en
 `dataset/breastdcedl/`. Los modelos están en `reports/modelo_elegido/`; las

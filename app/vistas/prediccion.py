@@ -3,8 +3,8 @@ import pandas as pd
 
 from .. import estado
 from .. import motor
-from ..componentes import (COHORTES, aviso, cabecera, escapar, lectura, lectura_vacia, num, pct, pie, recurso,
-                         red_neuronal, seccion, visor)
+from ..componentes import (COHORTES, aviso, cabecera, distribucion_grafica, escapar, grafica, lectura, lectura_vacia, num,
+                         pct, pie, recurso, red_neuronal, seccion, visor)
 
 
 def mostrar(pagina):
@@ -93,9 +93,11 @@ def mostrar(pagina):
     p_img = motor.calibrar(paquete, pred.p_cruda)
     umbral_img = paquete.info["politica"]["umbral"]
     dispersion = float(np.std([motor.calibrar(paquete, p) for p in pred.por_red]))
+    # La distribución se muestra para la estimación más completa disponible.
+    referencia = (p_img, img_info["perfiles"], "solo imagen")
     col_img, col_fus = pagina.columnas(2, gap="medium")
     with col_img:
-        lectura("Solo imagen · CNN", p_img, img_info["bandas"], umbral_img,
+        lectura("Solo imagen · CNN", p_img, img_info["perfiles"], umbral_img,
                 f"{len(nombres)} corte(s) × 5 redes × 4 reflexiones · desacuerdo entre redes ± {num(dispersion, 3)}")
     with col_fus:
         if fusion is None or fus_info is None:
@@ -105,14 +107,24 @@ def mostrar(pagina):
         else:
             d = fusion.decidir(pred.p_cruda, clinica)
             sub = d["submodelo"]
-            info_b = fus_info["bandas"].get(sub, img_info["bandas"])
+            info_p = fus_info["perfiles"].get(sub, img_info["perfiles"])
+            if sub in fus_info["perfiles"]:
+                referencia = (d["probabilidad_pcr"], info_p, "imagen + clínica")
             cambio = 100 * (d["probabilidad_pcr"] - p_img)
-            lectura("Imagen + clínica", d["probabilidad_pcr"], info_b, d["umbral"],
+            lectura("Imagen + clínica", d["probabilidad_pcr"], info_p, d["umbral"],
                     f"submodelo {escapar(sub)} · según los datos disponibles",
                     extra=f" Con la clínica, la estimación cambia <b>{cambio:+.1f} puntos</b>.".replace(".", ",", 1))
 
     if etiqueta_real is not None:
         pagina.texto_auxiliar(f"Resultado real de esta paciente de entrenamiento: {'pCR' if etiqueta_real else 'no pCR'}.")
+
+    p_ref, info_ref, nombre_ref = referencia
+    grafica(distribucion_grafica(info_ref, f"Dónde cae entre las pacientes de desarrollo · {nombre_ref}", marca=p_ref,
+                                 texto_marca=f"esta paciente · {num(100 * p_ref, 1)} %"))
+    n_ref = f"{info_ref['n']:,}".replace(",", ".")
+    pagina.texto_auxiliar(f"Probabilidades fuera de fold de las {n_ref} pacientes de desarrollo con el mismo modelo "
+                          "y los mismos datos disponibles. La línea blanca es esta estimación; las zonas de color, los cinco "
+                          "perfiles. Pasa el ratón por las barras para ver cuántas pacientes de cada tramo alcanzaron pCR.")
 
     # ---------------------------------------------------------------- 4. dentro de la red
     seccion("4", "Recorrido del corte por la red",
@@ -123,7 +135,8 @@ def mostrar(pagina):
         if len(nombres) > 1 else 0
     red_neuronal(estado.recorrido(pixeles[k]))
 
-    aviso("<b>Cómo interpretarlo.</b> La banda indica en qué tercio de las pacientes de la validación cruzada cae la "
-          "estimación y qué proporción de ese tercio alcanzó pCR (pasa el ratón por la regla). La zona intermedia es la "
-          "de mayor incertidumbre. Ningún resultado debe modificar el tratamiento ni la cirugía previstos.", "clave")
+    aviso("<b>Cómo interpretarlo.</b> El perfil indica en qué grupo de las pacientes de la validación cruzada cae la "
+          "estimación y qué proporción de ese grupo alcanzó pCR (pasa el ratón por la regla o por la escalera de perfiles). "
+          "El perfil intermedio reúne al 40 % central y es el de mayor incertidumbre; los extremos, al 10 % en el que el "
+          "modelo está más seguro. Ningún resultado debe modificar el tratamiento ni la cirugía previstos.", "clave")
     pie()

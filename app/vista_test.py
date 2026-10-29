@@ -46,7 +46,7 @@ def mostrar_test(pagina, informe: dict, modelo: str = "fusion") -> None:
         with pagina.desplegable("Datos disponibles y umbrales aplicados"):
             tabla(pd.DataFrame([{"Submodelo": f["submodelo"], "Pacientes": f["n"], "Umbral guardado": num(f["umbral"], 6)}
                                 for f in informe["umbrales_aplicados"]]))
-            pagina.texto_auxiliar("Se utiliza el patrón de variables disponibles, sin imputación y sin buscar un umbral en tepagina.")
+            pagina.texto_auxiliar("Se utiliza el patrón de variables disponibles, sin imputación y sin buscar un umbral en test.")
     seccion("2", "Discriminación y probabilidades")
     izquierda, derecha = pagina.columnas(2, gap="large")
     with izquierda:
@@ -74,7 +74,7 @@ def mostrar_test(pagina, informe: dict, modelo: str = "fusion") -> None:
     pagina.texto_auxiliar(f"Combinado − CNN: ΔAUC {d['delta']:+.3f}; IC95 % [{d['ic95'][0]:+.3f}; {d['ic95'][1]:+.3f}]. "
                "Bootstrap pareado sobre las mismas pacientes. Los errores usan la política propia guardada de cada modelo.")
     aviso("Esta comparación mide el combinado frente a la CNN sola. No demuestra que la imagen mejore a la clínica "
-          "sola: ese contraste no forma parte de esta evaluación de tepagina.", "info")
+          "sola: ese contraste no forma parte de esta evaluación de test.", "info")
     seccion("4", "Resultados por cohorte", "Subgrupos pequeños: las diferencias son descriptivas y no se usan para cambiar el modelo.")
     tabla(pd.DataFrame([
         {"Cohorte": COHORTES.get(f["cohorte"], f["cohorte"]), "Pacientes": f["n"], "pCR": f["pcr"],
@@ -85,8 +85,8 @@ def mostrar_test(pagina, informe: dict, modelo: str = "fusion") -> None:
     ]))
     seccion("5", "Alcance del cierre")
     aviso(informe["limite"] + " La validación privada sigue pendiente. Los pesos, coeficientes, calibración y "
-          "umbrales se mantienen como estaban antes de abrir este tepagina.", "atencion")
+          "umbrales se mantienen como estaban antes de abrir este test.", "atencion")
     pagina.texto_auxiliar("La validación cruzada se conserva en la otra vista. Su AUC media entre folds y su DE no son "
                "la misma estimación que la AUC de este test y su IC95 %.")
     pagina.descarga("Descargar informe de test · JSON", json.dumps(informe, ensure_ascii=False, indent=2),
-                       file_name="evaluacion_tepagina.json", mime="application/json", key=f"descarga_test_{modelo}")
+                       file_name="evaluacion_test.json", mime="application/json", key=f"descarga_test_{modelo}")

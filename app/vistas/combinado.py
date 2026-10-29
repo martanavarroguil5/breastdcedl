@@ -1,8 +1,9 @@
 import altair as alt
 import pandas as pd
 
-from ..componentes import (COBRE, GRIS, TINTA2, _base, aviso, bandas_grafica, cabecera, calibracion,
-                         grafica, matriz, num, pct, pie, pr, recurso, roc, seccion, tabla, tarjetas, estructura_fusion)
+from ..componentes import (ACERO, COBRE, GRIS, TINTA2, _base, aviso, cabecera, calibracion, composicion_grafica,
+                         distribucion_grafica, grafica, mapa_clinico, matriz, num, pct, perfiles_grafica, pie, pr, recurso,
+                         roc, seccion, tabla, tarjetas, estructura_fusion)
 from ..vista_test import mostrar_test
 
 
@@ -24,7 +25,9 @@ def mostrar(pagina):
     m = r["brazos"][r["alias"]["completa+imagen"]]
     config = fus.get("configuracion", {})
     sub = config.get("submodelo")
-    prevalencia = fus["bandas"]["subtipo+edad+volumen+imagen"]["prevalencia"]
+    perfiles = fus["perfiles"]["subtipo+edad+volumen+imagen"]
+    prevalencia = perfiles["prevalencia"]
+    datos = recurso("datos")
 
     cabecera("Modelo 2 · imagen + clínica", "Evaluación del <em>modelo combinado</em>",
              "Regresión logística regularizada sobre la puntuación de imagen, edad, volumen, HR y HER2. "
@@ -65,7 +68,52 @@ def mostrar(pagina):
         filas += [{"Grupo": "Subtipo " + k, "AUC del combinado": num(v["completa+imagen"])} for k, v in r["auc_por_subtipo"].items()]
         tabla(pd.DataFrame(filas))
 
-    seccion("2", "Errores de clasificación", "Selecciona el umbral: cambia el equilibrio entre falsos positivos y falsos negativos.")
+    seccion("2", "Qué aporta cada dato",
+            "Importancia medida sin fugas: la misma validación anidada repetida quitando una variable cada vez. "
+            "Cuanto más cae la AUC al quitarla, más aporta esa variable además de las demás.")
+    brazos = r["brazos"]
+    completa = brazos[r["alias"]["completa+imagen"]]["auc_media_folds"]
+    variables = {"Subtipo (HR y HER2)": "subtipo", "Volumen tumoral": "volumen", "Edad": "edad", "Imagen (CNN)": "imagen"}
+    todas = ["subtipo", "edad", "volumen", "imagen"]
+    filas_imp = []
+    for nombre, v in variables.items():
+        sin = "+".join(x for x in todas if x != v) + "|normal"
+        filas_imp.append({"Variable": nombre, "Caída de AUC al quitarla": completa - brazos[sin]["auc_media_folds"],
+                          "AUC sin ella": brazos[sin]["auc_media_folds"], "AUC sola": brazos[f"{v}|normal"]["auc_media_folds"]})
+    imp = pd.DataFrame(filas_imp)
+    imp["texto"] = imp.apply(lambda f: f"−{f['Caída de AUC al quitarla']:.3f} · sola {f['AUC sola']:.2f}".replace(".", ","), axis=1)
+    c1, c2 = pagina.columnas([1, 1], gap="large")
+    with c1:
+        y_imp = alt.Y("Variable:N", sort=list(variables), title=None, axis=alt.Axis(labelFont="Geist", labelFontSize=11.5))
+        barras_imp = alt.Chart(imp).mark_bar(size=26, cornerRadiusTopRight=2, cornerRadiusBottomRight=2).encode(
+            y=y_imp, x=alt.X("Caída de AUC al quitarla:Q", title="Caída de la AUC al quitar la variable",
+                             scale=alt.Scale(domain=[0, 0.22])),
+            color=alt.condition(alt.datum.Variable == "Imagen (CNN)", alt.value(COBRE), alt.value(ACERO)),
+            tooltip=["Variable:N", alt.Tooltip("Caída de AUC al quitarla:Q", format=".4f"),
+                     alt.Tooltip("AUC sin ella:Q", format=".3f"), alt.Tooltip("AUC sola:Q", format=".3f")])
+        etiquetas_imp = barras_imp.mark_text(align="left", dx=6, fontSize=11, color=TINTA2).encode(text="texto:N")
+        grafica(_base(alt.layer(barras_imp, etiquetas_imp).properties(title="Importancia de cada variable"), 250))
+        pagina.texto_auxiliar(f"AUC del modelo completo: {num(completa)}. «Sola» es la AUC de una logística con esa única "
+                              "variable. El subtipo domina; imagen, volumen y edad añaden poco cada uno, pero juntos suman.")
+    with c2:
+        if datos:
+            clin = datos["clinica"]
+            cruce = pagina.segmentos("Cruce clínico", ["Subtipo × volumen", "Subtipo × edad"], default="Subtipo × volumen",
+                                     key="fusion_cruce") or "Subtipo × volumen"
+            if cruce == "Subtipo × volumen":
+                grafica(mapa_clinico(clin["subtipo_volumen"], "volumen_grupo", ["Pequeño", "Mediano", "Grande"],
+                                     "pCR observada · subtipo y volumen", "Volumen tumoral (tercil)"))
+                pagina.texto_auxiliar("Terciles de volumen en train: pequeño < " + num(clin["cortes_volumen"][0], 1) +
+                                      " cm³ ≤ mediano < " + num(clin["cortes_volumen"][1], 1) + " cm³ ≤ grande.")
+            else:
+                grafica(mapa_clinico(clin["subtipo_edad"], "edad_grupo", ["< 40", "40–49", "50–59", "≥ 60"],
+                                     "pCR observada · subtipo y edad", "Edad (años)"))
+                pagina.texto_auxiliar("Grupos de edad al diagnóstico. Cada celda indica la pCR observada y el número de pacientes.")
+    aviso("<b>Lectura.</b> Dentro de cada subtipo, los tumores pequeños y las pacientes jóvenes alcanzan pCR algo más a "
+          "menudo. La imagen aporta algo distinto de estas variables: por eso la fusión mejora a la clínica sola, aunque "
+          "la mejora sea pequeña.", "info")
+
+    seccion("3", "Errores de clasificación", "Selecciona el umbral: cambia el equilibrio entre falsos positivos y falsos negativos.")
     umbrales = {k: v for k, v in fus.get("umbrales", {}).items() if k.endswith("+imagen")}
     if umbrales:
         patron = pagina.selector("Datos disponibles del modelo combinado", list(umbrales),
@@ -84,10 +132,36 @@ def mostrar(pagina):
         pagina.texto_auxiliar("Umbrales elegidos con estas mismas OOF: las métricas de clasificación pueden ser optimistas. "
                    + ("La vista Test final aplica únicamente el Youden congelado." if evaluacion_test else "Test pendiente."))
 
-    seccion("3", "Calidad de las probabilidades")
+    seccion("4", "Perfiles de pCR",
+            "En lugar de un sí o un no, cada paciente se sitúa en uno de cinco perfiles según su probabilidad. Los cortes "
+            "son percentiles de las predicciones fuera de fold: el 10 % más bajo, el 20 % siguiente, el 40 % central, el "
+            "20 % siguiente y el 10 % más alto.")
+    extremos = perfiles["perfiles"]
+    tarjetas([
+        {"t": "Perfil muy alto", "v": pct(extremos[-1]["tasa_pcr"]), "acento": True,
+         "d": f"pCR observada · {num(extremos[-1]['razon'], 1)} × la media · {extremos[-1]['n']} pacientes"},
+        {"t": "Perfil muy bajo", "v": pct(extremos[0]["tasa_pcr"]),
+         "d": f"pCR observada · {num(extremos[0]['razon'], 1)} × la media · {extremos[0]['n']} pacientes"},
+        {"t": "Separación", "v": f"{extremos[-1]['tasa_pcr'] / extremos[0]['tasa_pcr']:.1f} ×".replace(".", ","),
+         "d": "pCR del perfil muy alto frente al muy bajo"},
+        {"t": "Media de desarrollo", "v": pct(prevalencia), "d": f"{perfiles['n']:,} pacientes, validación anidada".replace(",", ".")},
+    ])
+    c1, c2 = pagina.columnas([1, 1], gap="large")
+    with c1:
+        grafica(perfiles_grafica(perfiles, "pCR observada en cada perfil"))
+    with c2:
+        grafica(composicion_grafica(perfiles, "Subtipos dentro de cada perfil"))
+    grafica(distribucion_grafica(perfiles, "Distribución de las probabilidades del combinado"))
+    pagina.texto_auxiliar("Barras apiladas: pacientes con y sin pCR en cada tramo de probabilidad, sobre las zonas de los cinco "
+                          "perfiles. Ningún tramo es puro: incluso en el perfil muy alto, " +
+                          pct(1 - extremos[-1]["tasa_pcr"]) + " no alcanzó pCR. Los perfiles reparten la incertidumbre; "
+                          "no la eliminan. Cortes fijados solo con train, sin mirar el test.")
+
+    seccion("5", "Calidad de las probabilidades")
     c1, c2 = pagina.columnas(2, gap="large")
     with c1:
-        grafica(bandas_grafica(fus["bandas"]["subtipo+edad+volumen+imagen"], "pCR observada por banda del combinado"))
+        if fus.get("calibracion", {}).get("completa+imagen"):
+            grafica(calibracion(fus["calibracion"]["completa+imagen"]))
     with c2:
         ref_brier = prevalencia * (1 - prevalencia)
         df = pd.DataFrame([{"Predicción": "Prevalencia constante", "Brier": ref_brier},
@@ -100,13 +174,10 @@ def mostrar(pagina):
                      .properties(title="Error de las probabilidades"), 320))
     pagina.texto_auxiliar("La prevalencia constante es una referencia descriptiva calculada en las OOF. "
                "El Brier combina calibración y discriminación; por sí solo no demuestra buena calibración.")
-    if fus.get("calibracion", {}).get("completa+imagen"):
-        grafica(calibracion(fus["calibracion"]["completa+imagen"]))
-    else:
-        pagina.texto_auxiliar("Calibración por deciles pendiente: faltan las probabilidades individuales OOF en esta copia. "
-                   "Las bandas muestran tasas observadas por tercil, no una curva de calibración.")
+    if not fus.get("calibracion", {}).get("completa+imagen"):
+        pagina.texto_auxiliar("Calibración por deciles pendiente: faltan las probabilidades individuales OOF en esta copia.")
 
-    seccion("4", "Complejidad y parámetros de la fusión",
+    seccion("6", "Complejidad y parámetros de la fusión",
             "Cinco coeficientes y un intercepto en el submodelo completo; la CNN se mantiene congelada.")
     if sub:
         tarjetas([
@@ -135,7 +206,7 @@ def mostrar(pagina):
             pagina.texto_auxiliar(f"Intercepto {num(sub['intercepto'])}. Volumen transformado como log(1 + volumen). "
                        "Cada patrón de datos ausentes tiene su propia logística.")
 
-    seccion("5", "¿Hay sobreajuste de la fusión?",
+    seccion("7", "¿Hay sobreajuste de la fusión?",
             "Diagnóstico propio: rendimiento en el ajuste logístico frente al fold exterior reservado.")
     diag = fus.get("diagnostico_generalizacion", r.get("diagnostico_generalizacion", []))
     if diag:
@@ -158,9 +229,9 @@ def mostrar(pagina):
             pagina.codigo("python scripts/exportar_diagnostico_fusion.py", language="bash")
             pagina.texto_auxiliar("Ejecutar desde la raíz del proyecto en el equipo que conserva runs/cv_interna_fusion y "
                        "runs/cv_presupuesto. Reajusta solo las logísticas de los folds con el mismo C = 1; "
-                       "no entrena CNN, no cambia el paquete final y no lee tepagina.")
+                       "no entrena CNN, no cambia el paquete final y no lee test.")
 
-    seccion("6", "Conclusión")
+    seccion("8", "Conclusión")
     aviso("<b>Discriminación moderada en validación anidada.</b> El combinado obtiene AUC 0,714 y AP 0,505; "
           "sus probabilidades mejoran el Brier de la referencia constante. Esto no basta para afirmar "
           "buena calibración ni ausencia de sobreajuste. "
