@@ -19,6 +19,10 @@ Abrir `http://127.0.0.1:8501`. Para otro puerto, usar `--port 8502`. En una
 conexión SSH, reenviar el puerto al equipo local. El servidor escucha en
 loopback por defecto; no se publica automáticamente en Internet.
 
+Para Hugging Face, `.venv/bin/python scripts/preparar_space.py` genera
+`despliegue/space` con lo justo para un Space de tipo Docker: código, pesos y
+36 pacientes de ejemplo de train. El script no sube nada.
+
 ## Archivos
 
 | Ruta | Responsabilidad |

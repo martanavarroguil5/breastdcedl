@@ -18,6 +18,7 @@ app/                         Panel HTML y servidor de inferencia
   vistas/                    Contenido y datos de cada página
   requirements.txt           Dependencias de la aplicación
 dataset/                     Distribución local de BreastDCEDL (fuera de Git)
+despliegue/                  Dockerfile y README del Space; space/ se genera (fuera de Git)
 experiments/                 Catálogo de ensayos con sus métricas y figuras
   protocolos/                Diseños previos de los experimentos
   pilotos/                   Implementaciones de pilotos experimentales

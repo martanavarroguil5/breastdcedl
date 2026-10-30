@@ -10,11 +10,12 @@ def main():
     parser = argparse.ArgumentParser(description='Panel web RedDCE · pCR')
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--port', type=int, default=8501)
+    parser.add_argument('--hilos', type=int, default=4)
     args = parser.parse_args()
     import torch
     from waitress import serve
     from app.servidor import crear_app
-    torch.set_num_threads(4)
+    torch.set_num_threads(args.hilos)
     print(f'Panel disponible en http://{args.host}:{args.port}', flush=True)
     serve(crear_app(), host=args.host, port=args.port, threads=4, max_request_body_size=48 * 1024 * 1024)
 
