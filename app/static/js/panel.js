@@ -51,6 +51,15 @@ function actualizarRango(input) {
   input.setAttribute('aria-valuetext', etiqueta);
 }
 
+async function pedirFragmento(formulario, datos) {
+  const respuesta = await fetch(formulario.action, {method: 'POST', body: datos, headers: {'X-Panel-Fragmento': '1'}, signal: pendiente.signal});
+  if (!respuesta.ok) {
+    const error = await respuesta.json().catch(() => ({}));
+    throw new Error(error.error || 'No se ha podido actualizar el panel.');
+  }
+  return respuesta.text();
+}
+
 async function actualizar(formulario, control) {
   const cambiaPaciente = control && (['paciente_de_ejemplo_train', 'origen'].includes(control.name) || control.type === 'file');
   if (!cambiaPaciente && !formulario.reportValidity()) return;
@@ -73,14 +82,9 @@ async function actualizar(formulario, control) {
   const desplazamiento = window.scrollY;
   document.body.classList.add('cargando');
   formulario.setAttribute('aria-busy', 'true');
-  mensaje(location.pathname === '/prediccion' ? 'Calculando con los modelos guardados…' : 'Actualizando…');
+  mensaje(/\/prediccion(\.html)?$/.test(location.pathname) ? 'Calculando con los modelos guardados…' : 'Actualizando…');
   try {
-    const respuesta = await fetch(formulario.action, {method: 'POST', body: datos, headers: {'X-Panel-Fragmento': '1'}, signal: pendiente.signal});
-    if (!respuesta.ok) {
-      const error = await respuesta.json().catch(() => ({}));
-      throw new Error(error.error || 'No se ha podido actualizar el panel.');
-    }
-    const contenido = await respuesta.text();
+    const contenido = window.panelEstatico ? await window.panelEstatico(datos, control) : await pedirFragmento(formulario, datos);
     if (numero !== peticion) return;
     observador.disconnect();
     graficas.forEach(({resultado, resize}) => {resize.disconnect(); resultado.finalize();});

@@ -16,3 +16,5 @@ runs/*
 !reports/modelo_elegido/imagen_v2/registro.log
 reports/modelo_elegido/*/predicciones_test.csv
 despliegue/space/
+despliegue/web/
+despliegue/web_oro.json

@@ -199,11 +199,15 @@ def emitir_marco(codigo, height):
     titulo = 'Visualización interactiva ' + str(pagina.contador)
     emitir_html(f'<iframe class="visualizacion" title="{titulo}" height="{height}" sandbox="allow-scripts allow-same-origin" loading="lazy" srcdoc="{html.escape(codigo, quote=True)}"></iframe>')
 
+def especificacion(chart):
+    salida = chart.to_dict()
+    salida['width'] = 'container'
+    salida['autosize'] = {'type': 'fit', 'contains': 'padding', 'resize': True}
+    return salida
+
 def emitir_grafica(chart):
-    especificacion = chart.to_dict()
-    especificacion['width'] = 'container'
-    especificacion['autosize'] = {'type': 'fit', 'contains': 'padding', 'resize': True}
-    datos = json.dumps(especificacion, ensure_ascii=False).replace('<', '\\u003c')
-    alto = especificacion.get('height', 300)
+    grafica = especificacion(chart)
+    datos = json.dumps(grafica, ensure_ascii=False).replace('<', '\\u003c')
+    alto = grafica.get('height', 300)
     alto = alto if isinstance(alto, (int, float)) else 300
     emitir_html(f'<div class="grafica" role="figure" style="min-height:{alto}px"><script type="application/json" class="grafica-datos">' + datos + '</script></div>')

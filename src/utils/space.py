@@ -41,17 +41,22 @@ def filtrar_metadatos(pacientes, raiz: Path = DATOS) -> tuple[pd.DataFrame, pd.D
     return samples, patients
 
 
-def comprobar(destino: Path, raiz: Path = DATOS) -> None:
-    """Detiene la preparación si queda algún dato individual de test o un archivo que no debe subir."""
+def identificadores_de_test(raiz: Path = DATOS) -> re.Pattern:
+    """Expresión que encuentra cualquier paciente de test sin confundirla con otra de nombre parecido."""
     pacientes = pd.read_csv(raiz / "metadata/patients.csv")
     otras = sorted(pacientes.loc[pacientes["split"] != "train", "pid"], key=len, reverse=True)
-    ids = re.compile(rb"(?<![\w-])(?:" + "|".join(re.escape(p) for p in otras).encode() + rb")(?![\w-])")
+    return re.compile(rb"(?<![\w-])(?:" + "|".join(re.escape(p) for p in otras).encode() + rb")(?![\w-])")
+
+
+def comprobar(destino: Path, raiz: Path = DATOS) -> None:
+    """Detiene la preparación si queda algún dato individual de test o un archivo que no debe subir."""
+    ids = identificadores_de_test(raiz)
     errores = []
     for ruta in sorted(destino.rglob("*")):
         relativa = ruta.relative_to(destino).as_posix()
         if PROHIBIDO.search(relativa):
             errores.append(f"archivo prohibido: {relativa}")
-        elif ruta.is_file() and ruta.suffix not in SIN_TEXTO and otras and ids.search(ruta.read_bytes()):
+        elif ruta.is_file() and ruta.suffix not in SIN_TEXTO and ids.search(ruta.read_bytes()):
             errores.append(f"identificador de test: {relativa}")
     copia = destino / "dataset/breastdcedl"
     samples = pd.read_csv(copia / "metadata/samples.csv")

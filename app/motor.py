@@ -188,7 +188,7 @@ def _aristas(pesos: np.ndarray, por_destino: int = 4, signo: bool = False) -> li
     maximo = float(np.abs(pesos).max()) or 1.0
     salida = []
     for j, fila in enumerate(pesos):
-        for i in np.argsort(-np.abs(fila))[:por_destino]:
+        for i in np.argsort(-np.abs(fila), kind="stable")[:por_destino]:
             w = abs(float(fila[i])) / maximo
             if w > 0.02:
                 salida.append([int(i), j, round(w, 3), int(np.sign(fila[i])) if signo else 0])
@@ -217,13 +217,13 @@ def recorrido(modelo: RedDCE, corte: np.ndarray, por_capa: int = 8, n_pool: int 
     oculta = torch.relu(lineal(z))
     logit = float(modelo._pcr(oculta[None])[0, 0])
     aporte = modelo.cabeza_pcr.weight[0] * oculta                  # [64] aporte de cada neurona al logit
-    densa = torch.argsort(aporte.abs(), descending=True)[:n_densa]
+    densa = torch.argsort(aporte.abs(), descending=True, stable=True)[:n_densa]
     hacia_densa = lineal.weight[densa] * z[None]                   # [n_densa, 960]
     importancia = hacia_densa.abs().sum(0)
 
     # Bloque 4 y pooling: canales detrás de los rasgos agregados más influyentes.
     canales4, pool = [], []
-    for f in torch.argsort(importancia, descending=True).tolist():
+    for f in torch.argsort(importancia, descending=True, stable=True).tolist():
         c = f % c4
         if c not in canales4 and len(canales4) < por_capa:
             canales4.append(c)
@@ -238,7 +238,7 @@ def recorrido(modelo: RedDCE, corte: np.ndarray, por_capa: int = 8, n_pool: int 
     for b in range(len(modelo.backbone) - 1, -1, -1):              # bloque b+1 ← entrada del bloque b
         destino = elegidos[0]
         m = conect[b][destino] * actividad[b][None]                # [n_dest, C_ent]
-        origen = list(range(m.shape[1])) if b == 0 else torch.argsort(m.sum(0), descending=True)[:por_capa].tolist()
+        origen = list(range(m.shape[1])) if b == 0 else torch.argsort(m.sum(0), descending=True, stable=True)[:por_capa].tolist()
         pares.insert(0, m[:, origen].numpy())
         elegidos.insert(0, origen)
 

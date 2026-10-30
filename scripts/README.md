@@ -11,6 +11,7 @@ Ejecutar desde la raíz del repositorio con `.venv/bin/python scripts/<archivo>.
 | [exportar_diagnostico_fusion.py](exportar_diagnostico_fusion.py) | Actualiza curvas y diagnóstico de ajuste de la fusión | Reajusta logísticas de los folds de train; no cambia el paquete final |
 | [exportar_test.py](exportar_test.py) | Reexporta el test ya cerrado al panel | Predicciones de test guardadas; sin repetir inferencia |
 | [generar_figuras_experimentos.py](generar_figuras_experimentos.py) | Regenera las figuras del catálogo de experimentos | Métricas JSON agregadas; sin entrenar |
+| [preparar_web.py](preparar_web.py) | Genera `despliegue/web`, la versión estática del panel para Hugging Face; requiere onnx, onnxscript y onnxruntime | Pesos congelados y 36 pacientes de ejemplo de train; no publica nada |
 | [preparar_space.py](preparar_space.py) | Genera `despliegue/space` para Hugging Face y bloquea cualquier dato individual de test | Código versionado, pesos y 36 pacientes de ejemplo de train; no publica nada |
 
 La lógica reutilizable de modelos, datos e inferencia permanece en `src/`; estos archivos son entradas de ejecución. Los nombres `exportar_*` indican que generan informes o recursos, y `verificar_*` identifica comprobaciones.
